@@ -7,13 +7,6 @@ import '../providers/todo_provider.dart';
 import '../screens/todo_form_screen.dart';
 
 class TodoListItem extends StatefulWidget {
-  final Todo todo;
-  final String categoryEmoji;
-  final VoidCallback onToggle;
-  final VoidCallback onTap;
-  final VoidCallback onDelete;
-  final int depth;
-
   const TodoListItem({
     super.key,
     required this.todo,
@@ -23,6 +16,13 @@ class TodoListItem extends StatefulWidget {
     required this.onDelete,
     this.depth = 0,
   });
+
+  final Todo todo;
+  final String categoryEmoji;
+  final VoidCallback onToggle;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+  final int depth;
 
   @override
   State<TodoListItem> createState() => _TodoListItemState();
@@ -630,17 +630,17 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
 
 // 액션 버튼 위젯
 class _ActionButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final IconData icon;
-  final Color color;
-  final Color backgroundColor;
-
   const _ActionButton({
     required this.onTap,
     required this.icon,
     required this.color,
     required this.backgroundColor,
   });
+
+  final VoidCallback onTap;
+  final IconData icon;
+  final Color color;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {

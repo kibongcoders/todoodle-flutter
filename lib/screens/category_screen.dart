@@ -74,9 +74,9 @@ class CategoryScreen extends StatelessWidget {
 }
 
 class _CategoryItem extends StatelessWidget {
-  final TodoCategoryModel category;
-
   const _CategoryItem({required this.category});
+
+  final TodoCategoryModel category;
 
   @override
   Widget build(BuildContext context) {
@@ -170,9 +170,9 @@ class _CategoryItem extends StatelessWidget {
 }
 
 class _CategoryFormDialog extends StatefulWidget {
-  final TodoCategoryModel? category;
-
   const _CategoryFormDialog({this.category});
+
+  final TodoCategoryModel? category;
 
   @override
   State<_CategoryFormDialog> createState() => _CategoryFormDialogState();
@@ -257,7 +257,7 @@ class _CategoryFormDialogState extends State<_CategoryFormDialog> {
                   final isSelected = emoji == _selectedEmoji;
                   return GestureDetector(
                     onTap: () => setState(() => _selectedEmoji = emoji),
-                    child: Container(
+                    child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: isSelected
                             ? const Color(0xFFA8E6CF)

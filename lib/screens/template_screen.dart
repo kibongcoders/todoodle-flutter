@@ -500,13 +500,13 @@ class TemplateScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
+              const Padding(
+                padding: EdgeInsets.all(20),
                 child: Row(
                   children: [
-                    const Text('✨', style: TextStyle(fontSize: 20)),
-                    const SizedBox(width: 8),
-                    const Text(
+                    Text('✨', style: TextStyle(fontSize: 20)),
+                    SizedBox(width: 8),
+                    Text(
                       '새 템플릿 만들기',
                       style: TextStyle(
                         fontSize: 18,

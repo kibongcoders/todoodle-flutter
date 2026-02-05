@@ -31,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
         index: _currentIndex,
         children: _screens,
       ),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
           color: Colors.white,
           boxShadow: [

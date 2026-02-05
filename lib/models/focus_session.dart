@@ -14,6 +14,18 @@ enum FocusSessionType {
 
 @HiveType(typeId: 7)
 class FocusSession extends HiveObject {
+  FocusSession({
+    required this.id,
+    this.todoId,
+    required this.type,
+    required this.startTime,
+    this.endTime,
+    required this.plannedDuration,
+    this.actualDuration = 0,
+    this.wasCompleted = false,
+    this.wasInterrupted = false,
+  });
+
   @HiveField(0)
   final String id;
 
@@ -40,18 +52,6 @@ class FocusSession extends HiveObject {
 
   @HiveField(8)
   bool wasInterrupted; // 중단 여부
-
-  FocusSession({
-    required this.id,
-    this.todoId,
-    required this.type,
-    required this.startTime,
-    this.endTime,
-    required this.plannedDuration,
-    this.actualDuration = 0,
-    this.wasCompleted = false,
-    this.wasInterrupted = false,
-  });
 
   FocusSession copyWith({
     String? id,

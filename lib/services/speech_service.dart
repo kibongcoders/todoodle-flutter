@@ -3,9 +3,9 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 class SpeechService {
-  static final SpeechService _instance = SpeechService._internal();
   factory SpeechService() => _instance;
   SpeechService._internal();
+  static final SpeechService _instance = SpeechService._internal();
 
   final SpeechToText _speech = SpeechToText();
   bool _isInitialized = false;

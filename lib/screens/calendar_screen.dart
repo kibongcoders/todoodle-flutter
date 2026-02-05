@@ -114,8 +114,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       },
       calendarStyle: CalendarStyle(
         // 오늘 날짜
-        todayDecoration: BoxDecoration(
-          color: const Color(0xFFA8E6CF),
+        todayDecoration: const BoxDecoration(
+          color: Color(0xFFA8E6CF),
           shape: BoxShape.circle,
         ),
         todayTextStyle: const TextStyle(

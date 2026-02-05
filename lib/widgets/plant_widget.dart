@@ -4,16 +4,16 @@ import 'dart:math' as math;
 import '../models/plant.dart';
 
 class PlantWidget extends StatelessWidget {
-  final Plant plant;
-  final double size;
-  final bool showGlow;
-
   const PlantWidget({
     super.key,
     required this.plant,
     this.size = 60,
     this.showGlow = false,
   });
+
+  final Plant plant;
+  final double size;
+  final bool showGlow;
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +43,13 @@ class PlantWidget extends StatelessWidget {
 }
 
 class PlantPainter extends CustomPainter {
-  final PlantType type;
-  final int stage;
-
   PlantPainter({
     required this.type,
     required this.stage,
   });
+
+  final PlantType type;
+  final int stage;
 
   @override
   void paint(Canvas canvas, Size size) {

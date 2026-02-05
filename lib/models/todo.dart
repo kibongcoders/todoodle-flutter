@@ -32,6 +32,31 @@ enum Recurrence {
 
 @HiveType(typeId: 0)
 class Todo extends HiveObject {
+  Todo({
+    required this.id,
+    required this.title,
+    this.description,
+    this.isCompleted = false,
+    this.priority = Priority.medium,
+    List<String>? categoryIds,
+    required this.createdAt,
+    this.dueDate,
+    this.startDate,
+    this.parentId,
+    this.recurrence = Recurrence.none,
+    this.recurrenceDays,
+    this.notificationEnabled = true,
+    this.reminderOffsets,
+    this.completionHistory,
+    this.sortOrder = 0,
+    this.isArchived = false,
+    this.deletedAt,
+    List<String>? tags,
+    this.estimatedMinutes,
+    this.actualMinutes,
+  })  : categoryIds = categoryIds ?? ['personal'],
+        tags = tags ?? [];
+
   @HiveField(0)
   final String id;
 
@@ -94,31 +119,6 @@ class Todo extends HiveObject {
 
   @HiveField(20)
   int? actualMinutes; // 실제 소요 시간 (분)
-
-  Todo({
-    required this.id,
-    required this.title,
-    this.description,
-    this.isCompleted = false,
-    this.priority = Priority.medium,
-    List<String>? categoryIds,
-    required this.createdAt,
-    this.dueDate,
-    this.startDate,
-    this.parentId,
-    this.recurrence = Recurrence.none,
-    this.recurrenceDays,
-    this.notificationEnabled = true,
-    this.reminderOffsets,
-    this.completionHistory,
-    this.sortOrder = 0,
-    this.isArchived = false,
-    this.deletedAt,
-    List<String>? tags,
-    this.estimatedMinutes,
-    this.actualMinutes,
-  }) : categoryIds = categoryIds ?? ['personal'],
-       tags = tags ?? [];
 
   Todo copyWith({
     String? id,

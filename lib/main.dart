@@ -72,12 +72,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final CategoryProvider categoryProvider;
-  final SettingsProvider settingsProvider;
-  final ForestProvider forestProvider;
-  final FocusProvider focusProvider;
-  final TemplateProvider templateProvider;
-
   const MyApp({
     super.key,
     required this.categoryProvider,
@@ -86,6 +80,12 @@ class MyApp extends StatelessWidget {
     required this.focusProvider,
     required this.templateProvider,
   });
+
+  final CategoryProvider categoryProvider;
+  final SettingsProvider settingsProvider;
+  final ForestProvider forestProvider;
+  final FocusProvider focusProvider;
+  final TemplateProvider templateProvider;
 
   @override
   Widget build(BuildContext context) {

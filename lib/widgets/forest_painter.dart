@@ -4,9 +4,9 @@ import 'dart:math' as math;
 import '../models/plant.dart';
 
 class ForestScenePainter extends CustomPainter {
-  final List<Plant> plants;
-
   ForestScenePainter({required this.plants});
+
+  final List<Plant> plants;
 
   @override
   void paint(Canvas canvas, Size size) {

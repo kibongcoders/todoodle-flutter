@@ -7,12 +7,12 @@ import '../providers/forest_provider.dart';
 import 'swaying_plant.dart';
 
 class ForestBackground extends StatelessWidget {
-  final Widget child;
-
   const ForestBackground({
     super.key,
     required this.child,
   });
+
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -436,13 +436,13 @@ class _SunsetRaysPainter extends CustomPainter {
 
 // 반짝이는 별 위젯
 class _TwinklingStar extends StatefulWidget {
-  final double size;
-  final double baseOpacity;
-
   const _TwinklingStar({
     required this.size,
     required this.baseOpacity,
   });
+
+  final double size;
+  final double baseOpacity;
 
   @override
   State<_TwinklingStar> createState() => _TwinklingStarState();

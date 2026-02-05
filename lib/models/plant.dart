@@ -14,6 +14,17 @@ enum PlantType {
 
 @HiveType(typeId: 5)
 class Plant extends HiveObject {
+  Plant({
+    required this.id,
+    required this.type,
+    this.growthStage = 0,
+    required this.createdAt,
+    this.completedAt,
+    this.isFullyGrown = false,
+    required this.positionX,
+    required this.positionY,
+  });
+
   @HiveField(0)
   final String id;
 
@@ -37,17 +48,6 @@ class Plant extends HiveObject {
 
   @HiveField(7)
   int positionY; // 숲에서의 Y 위치 (0-100%)
-
-  Plant({
-    required this.id,
-    required this.type,
-    this.growthStage = 0,
-    required this.createdAt,
-    this.completedAt,
-    this.isFullyGrown = false,
-    required this.positionX,
-    required this.positionY,
-  });
 
   // 최대 성장 단계 (식물 종류별로 다름)
   int get maxGrowthStage {

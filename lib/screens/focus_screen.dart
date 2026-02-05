@@ -486,11 +486,11 @@ class _FocusScreenState extends State<FocusScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
-              const Text('📊', style: TextStyle(fontSize: 20)),
-              const SizedBox(width: 8),
-              const Text(
+              Text('📊', style: TextStyle(fontSize: 20)),
+              SizedBox(width: 8),
+              Text(
                 '집중 통계',
                 style: TextStyle(
                   fontSize: 18,
@@ -687,13 +687,13 @@ class _FocusScreenState extends State<FocusScreen>
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
+            const Padding(
+              padding: EdgeInsets.all(20),
               child: Row(
                 children: [
-                  const Text('🎯', style: TextStyle(fontSize: 20)),
-                  const SizedBox(width: 8),
-                  const Text(
+                  Text('🎯', style: TextStyle(fontSize: 20)),
+                  SizedBox(width: 8),
+                  Text(
                     '오늘의 집중 할일 선택',
                     style: TextStyle(
                       fontSize: 18,
@@ -898,17 +898,17 @@ class _FocusScreenState extends State<FocusScreen>
 }
 
 class _TimerPainter extends CustomPainter {
-  final double progress;
-  final bool isBreak;
-  final bool isRunning;
-  final double animation;
-
   _TimerPainter({
     required this.progress,
     required this.isBreak,
     required this.isRunning,
     required this.animation,
   });
+
+  final double progress;
+  final bool isBreak;
+  final bool isRunning;
+  final double animation;
 
   @override
   void paint(Canvas canvas, Size size) {

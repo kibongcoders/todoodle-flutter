@@ -6,11 +6,6 @@ import '../models/plant.dart';
 import 'plant_widget.dart';
 
 class SwayingPlant extends StatefulWidget {
-  final Plant plant;
-  final double size;
-  final bool showGlow;
-  final int delayMs;
-
   const SwayingPlant({
     super.key,
     required this.plant,
@@ -18,6 +13,11 @@ class SwayingPlant extends StatefulWidget {
     this.showGlow = false,
     this.delayMs = 0,
   });
+
+  final Plant plant;
+  final double size;
+  final bool showGlow;
+  final int delayMs;
 
   @override
   State<SwayingPlant> createState() => _SwayingPlantState();
@@ -84,14 +84,14 @@ class _SwayingPlantState extends State<SwayingPlant>
 }
 
 class SwayingForestScene extends StatelessWidget {
-  final List<Plant> plants;
-  final double heightRatio;
-
   const SwayingForestScene({
     super.key,
     required this.plants,
     this.heightRatio = 0.25,
   });
+
+  final List<Plant> plants;
+  final double heightRatio;
 
   @override
   Widget build(BuildContext context) {

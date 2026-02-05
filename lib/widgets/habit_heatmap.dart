@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import '../models/todo.dart';
 
 class HabitHeatmap extends StatelessWidget {
-  final Todo habit;
-  final int weeksToShow;
-
   const HabitHeatmap({
     super.key,
     required this.habit,
     this.weeksToShow = 12,
   });
+
+  final Todo habit;
+  final int weeksToShow;
 
   @override
   Widget build(BuildContext context) {
@@ -215,16 +215,16 @@ class HabitHeatmap extends StatelessWidget {
 
 // 전체 습관 히트맵 (여러 습관 합산)
 class OverallHabitHeatmap extends StatelessWidget {
-  final Map<DateTime, List<Todo>> completionsByDate;
-  final int totalHabits;
-  final int weeksToShow;
-
   const OverallHabitHeatmap({
     super.key,
     required this.completionsByDate,
     required this.totalHabits,
     this.weeksToShow = 12,
   });
+
+  final Map<DateTime, List<Todo>> completionsByDate;
+  final int totalHabits;
+  final int weeksToShow;
 
   @override
   Widget build(BuildContext context) {

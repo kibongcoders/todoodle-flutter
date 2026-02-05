@@ -65,7 +65,7 @@ class ForestProvider extends ChangeNotifier {
 
   // 새 식물 시작 (랜덤 종류)
   void _startNewPlant() {
-    final types = PlantType.values;
+    const types = PlantType.values;
     final randomType = types[_random.nextInt(types.length)];
 
     // 랜덤 위치 생성 (기존 식물과 겹치지 않게)

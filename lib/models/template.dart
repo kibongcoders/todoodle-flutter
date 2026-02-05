@@ -6,6 +6,16 @@ part 'template.g.dart';
 
 @HiveType(typeId: 8)
 class TodoTemplate extends HiveObject {
+  TodoTemplate({
+    required this.id,
+    required this.name,
+    this.description,
+    this.emoji = '📋',
+    required this.items,
+    required this.createdAt,
+    this.useCount = 0,
+  });
+
   @HiveField(0)
   final String id;
 
@@ -26,16 +36,6 @@ class TodoTemplate extends HiveObject {
 
   @HiveField(6)
   int useCount; // 사용 횟수
-
-  TodoTemplate({
-    required this.id,
-    required this.name,
-    this.description,
-    this.emoji = '📋',
-    required this.items,
-    required this.createdAt,
-    this.useCount = 0,
-  });
 
   TodoTemplate copyWith({
     String? id,
@@ -60,6 +60,17 @@ class TodoTemplate extends HiveObject {
 
 @HiveType(typeId: 9)
 class TemplateItem extends HiveObject {
+  TemplateItem({
+    required this.title,
+    this.description,
+    this.priority = Priority.medium,
+    List<String>? categoryIds,
+    this.estimatedMinutes,
+    List<String>? tags,
+    this.dueDayOffset,
+  })  : categoryIds = categoryIds ?? ['personal'],
+        tags = tags ?? [];
+
   @HiveField(0)
   String title;
 
@@ -80,17 +91,6 @@ class TemplateItem extends HiveObject {
 
   @HiveField(6)
   int? dueDayOffset; // 생성일 기준 마감일 오프셋 (일 단위)
-
-  TemplateItem({
-    required this.title,
-    this.description,
-    this.priority = Priority.medium,
-    List<String>? categoryIds,
-    this.estimatedMinutes,
-    List<String>? tags,
-    this.dueDayOffset,
-  }) : categoryIds = categoryIds ?? ['personal'],
-       tags = tags ?? [];
 
   TemplateItem copyWith({
     String? title,

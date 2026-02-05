@@ -1,8 +1,8 @@
 /// 자연어 입력에서 날짜/시간/우선순위를 추출하는 파서
 class NaturalLanguageParser {
-  static final NaturalLanguageParser _instance = NaturalLanguageParser._internal();
   factory NaturalLanguageParser() => _instance;
   NaturalLanguageParser._internal();
+  static final NaturalLanguageParser _instance = NaturalLanguageParser._internal();
 
   /// 입력 텍스트를 파싱하여 할일 정보 추출
   ParsedTodoInput parse(String input) {
@@ -11,7 +11,7 @@ class NaturalLanguageParser {
     int? dueHour;
     int? dueMinute;
     int? priority; // 0-4 (veryLow ~ veryHigh)
-    List<String> tags = [];
+    final List<String> tags = [];
 
     // 태그 추출 (#태그)
     final tagRegex = RegExp(r'#(\S+)');
@@ -223,7 +223,7 @@ class NaturalLanguageParser {
     if (monthDayMatch != null) {
       final month = int.parse(monthDayMatch.group(1)!);
       final day = int.parse(monthDayMatch.group(2)!);
-      var year = now.year;
+      final year = now.year;
 
       // 이미 지난 날짜면 내년으로
       var targetDate = DateTime(year, month, day);
@@ -254,7 +254,7 @@ class NaturalLanguageParser {
     if (shortDateMatch != null) {
       final month = int.parse(shortDateMatch.group(1)!);
       final day = int.parse(shortDateMatch.group(2)!);
-      var year = now.year;
+      final year = now.year;
 
       var targetDate = DateTime(year, month, day);
       if (targetDate.isBefore(today)) {
@@ -323,17 +323,17 @@ class NaturalLanguageParser {
 }
 
 class ParsedTodoInput {
-  final String title;
-  final DateTime? dueDate;
-  final int? priority; // 0-4 (veryLow ~ veryHigh)
-  final List<String> tags;
-
   ParsedTodoInput({
     required this.title,
     this.dueDate,
     this.priority,
     this.tags = const [],
   });
+
+  final String title;
+  final DateTime? dueDate;
+  final int? priority; // 0-4 (veryLow ~ veryHigh)
+  final List<String> tags;
 
   bool get hasDate => dueDate != null;
   bool get hasPriority => priority != null;
@@ -342,20 +342,20 @@ class ParsedTodoInput {
 }
 
 class _PriorityResult {
+  _PriorityResult(this.remainingText, this.priority);
   final String remainingText;
   final int? priority;
-  _PriorityResult(this.remainingText, this.priority);
 }
 
 class _DateResult {
+  _DateResult(this.remainingText, this.date);
   final String remainingText;
   final DateTime? date;
-  _DateResult(this.remainingText, this.date);
 }
 
 class _TimeResult {
+  _TimeResult(this.remainingText, this.hour, this.minute);
   final String remainingText;
   final int? hour;
   final int? minute;
-  _TimeResult(this.remainingText, this.hour, this.minute);
 }

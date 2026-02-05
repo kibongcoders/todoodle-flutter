@@ -6,11 +6,6 @@ import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
 
 class TodoFormScreen extends StatefulWidget {
-  final Todo? todo;
-  final bool isDialog;
-  final String? parentId;
-  final DateTime? defaultDueDate;
-
   const TodoFormScreen({
     super.key,
     this.todo,
@@ -18,6 +13,11 @@ class TodoFormScreen extends StatefulWidget {
     this.parentId,
     this.defaultDueDate,
   });
+
+  final Todo? todo;
+  final bool isDialog;
+  final String? parentId;
+  final DateTime? defaultDueDate;
 
   @override
   State<TodoFormScreen> createState() => _TodoFormScreenState();

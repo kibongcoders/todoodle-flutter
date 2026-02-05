@@ -370,7 +370,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (context) => Container(
+      builder: (context) => DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),

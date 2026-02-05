@@ -31,15 +31,15 @@ class NotificationActions {
 
 /// 알림 페이로드 (알림 데이터 전달용)
 class NotificationPayload {
-  final String todoId;
-  final String action;
-  final int? snoozeMinutes;
-
   NotificationPayload({
     required this.todoId,
     this.action = '',
     this.snoozeMinutes,
   });
+
+  final String todoId;
+  final String action;
+  final int? snoozeMinutes;
 
   String encode() => jsonEncode({
     'todoId': todoId,
@@ -66,9 +66,9 @@ class NotificationPayload {
 typedef NotificationActionCallback = void Function(String todoId, String action);
 
 class NotificationService {
-  static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
   NotificationService._internal();
+  static final NotificationService _instance = NotificationService._internal();
 
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
@@ -683,7 +683,7 @@ class NotificationService {
     required bool isBreak,
     required int sessionsCompleted,
   }) async {
-    final details = NotificationDetails(
+    const details = NotificationDetails(
       macOS: DarwinNotificationDetails(
         presentAlert: true,
         presentBadge: true,

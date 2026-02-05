@@ -4,6 +4,13 @@ part 'category.g.dart';
 
 @HiveType(typeId: 3)
 class TodoCategoryModel extends HiveObject {
+  TodoCategoryModel({
+    required this.id,
+    required this.name,
+    required this.emoji,
+    this.isDefault = false,
+  });
+
   @HiveField(0)
   final String id;
 
@@ -15,13 +22,6 @@ class TodoCategoryModel extends HiveObject {
 
   @HiveField(3)
   bool isDefault;
-
-  TodoCategoryModel({
-    required this.id,
-    required this.name,
-    required this.emoji,
-    this.isDefault = false,
-  });
 
   TodoCategoryModel copyWith({
     String? id,
