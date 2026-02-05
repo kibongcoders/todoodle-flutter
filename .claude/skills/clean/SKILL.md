@@ -1,7 +1,6 @@
 ---
 name: clean
 description: Flutter 프로젝트 클린 및 재빌드
-disable-model-invocation: true
 ---
 
 # Flutter Clean

@@ -1,7 +1,6 @@
 ---
 name: analyze
 description: Flutter 코드 분석 및 린트 검사
-disable-model-invocation: true
 ---
 
 # Flutter Analyze

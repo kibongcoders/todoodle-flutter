@@ -1,7 +1,6 @@
 ---
 name: review
 description: 코드 리뷰 수행
-disable-model-invocation: true
 argument-hint: [file_path]
 ---
 

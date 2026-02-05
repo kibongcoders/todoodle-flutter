@@ -24,8 +24,9 @@ Conventional Commits 표준에 따라 변경사항을 커밋합니다.
 3. **변경 파일 분석 후 적절한 커밋 메시지 생성**
    - Conventional Commits 형식: `<type>(<scope>): <description>`
    - 한국어 description 사용
+   - Claude 서명이나 Co-Authored-By 없이 깔끔하게 작성
 
-4. **커밋 실행**
+4. **커밋 실행** (Claude 서명 없이)
 
 5. **`--push` 옵션이 있으면 푸시 실행**
 

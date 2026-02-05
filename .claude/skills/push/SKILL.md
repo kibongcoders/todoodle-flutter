@@ -1,7 +1,6 @@
 ---
 name: push
 description: Git push to remote
-disable-model-invocation: true
 argument-hint: [branch]
 ---
 

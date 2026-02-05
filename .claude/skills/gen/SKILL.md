@@ -1,7 +1,6 @@
 ---
 name: gen
 description: Hive 어댑터 및 코드 생성 (build_runner)
-disable-model-invocation: true
 ---
 
 # Code Generation

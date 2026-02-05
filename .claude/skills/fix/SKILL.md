@@ -1,7 +1,6 @@
 ---
 name: fix
 description: 버그 분석 및 수정
-disable-model-invocation: true
 argument-hint: [error_description]
 ---
 

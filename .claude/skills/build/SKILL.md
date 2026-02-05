@@ -1,7 +1,6 @@
 ---
 name: build
 description: Flutter 앱 빌드 (macOS, iOS, Android)
-disable-model-invocation: true
 argument-hint: [platform]
 ---
 

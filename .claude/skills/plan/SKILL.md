@@ -1,7 +1,6 @@
 ---
 name: plan
 description: 기능 설계 및 구현 계획 작성
-disable-model-invocation: true
 argument-hint: [feature_name]
 ---
 

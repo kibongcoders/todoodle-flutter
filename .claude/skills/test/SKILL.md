@@ -1,7 +1,6 @@
 ---
 name: test
 description: Flutter 테스트 실행
-disable-model-invocation: true
 argument-hint: [path]
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: run
 description: Flutter 앱 실행
-disable-model-invocation: true
 argument-hint: [platform]
 ---
 
