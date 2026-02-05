@@ -186,3 +186,46 @@ await _speech.listen(
 - [x] Phase 3: 포모도로, 자연어, 템플릿
 - [ ] Phase 4: 클라우드 동기화
 - [ ] Phase 5: AI 추천, 위젯
+
+## Security Guidelines (Public Repository)
+
+⚠️ **이 프로젝트는 GitHub Public 저장소로 관리됩니다.**
+
+### 커밋 전 보안 체크리스트
+- [ ] API 키, 시크릿이 코드에 하드코딩되어 있지 않은가?
+- [ ] `.env` 파일이 커밋 대상에 포함되어 있지 않은가?
+- [ ] `google-services.json`, `GoogleService-Info.plist`가 포함되어 있지 않은가?
+- [ ] keystore, 서명 키 파일이 포함되어 있지 않은가?
+- [ ] 개인정보나 테스트 데이터가 포함되어 있지 않은가?
+
+### 민감한 정보 관리 방법
+
+| 정보 유형 | 권장 방법 |
+|----------|----------|
+| API 키 | `.env` 파일 + `flutter_dotenv` 패키지 |
+| Firebase 설정 | `.gitignore`에 자동 제외됨 |
+| 앱 서명 키 | `android/key.properties` (자동 제외) |
+| 서버 URL | 환경 변수 또는 빌드 flavor 사용 |
+
+### .gitignore에서 자동 제외되는 파일
+```
+*.env, *.env.*           # 환경 변수
+*.jks, *.keystore        # 서명 키
+*.pem, *.p12, *.key      # 인증서/키
+google-services.json     # Firebase Android
+GoogleService-Info.plist # Firebase iOS
+key.properties           # Android 서명 설정
+android/local.properties # 로컬 SDK 경로
+```
+
+### 실수로 민감한 정보를 커밋한 경우
+```bash
+# 1. 해당 파일을 .gitignore에 추가
+# 2. Git 히스토리에서 제거
+git filter-branch --force --index-filter \
+  "git rm --cached --ignore-unmatch <파일경로>" \
+  --prune-empty --tag-name-filter cat -- --all
+
+# 3. 강제 푸시 (주의: 협업 시 팀원과 조율 필요)
+git push origin --force --all
+```
