@@ -636,12 +636,11 @@ class NotificationService {
             MacOSFlutterLocalNotificationsPlugin>();
 
     if (macOS != null) {
-      final granted = await macOS.requestPermissions(
+      await macOS.requestPermissions(
         alert: true,
         badge: true,
         sound: true,
       );
-      print('macOS 알림 권한: $granted');
     }
 
     final payload = NotificationPayload(todoId: 'test');
@@ -651,7 +650,6 @@ class NotificationService {
       category: 'todo_actions',
     );
 
-    print('테스트 알림 전송 중...');
     await _notifications.show(
       0,
       '테스트 알림',
@@ -659,7 +657,6 @@ class NotificationService {
       details,
       payload: payload.encode(),
     );
-    print('테스트 알림 전송 완료');
   }
 
   /// 긴급 알림 테스트

@@ -118,8 +118,8 @@ class SettingsScreen extends StatelessWidget {
                         trailing: Switch(
                           value: settings.dailySummaryEnabled,
                           onChanged: (value) async {
-                            await settings.setDailySummaryEnabled(value);
                             final todoProvider = context.read<TodoProvider>();
+                            await settings.setDailySummaryEnabled(value);
                             await todoProvider.scheduleDailySummaryNotification();
                           },
                           activeThumbColor: const Color(0xFF2E7D32),
@@ -137,13 +137,13 @@ class SettingsScreen extends StatelessWidget {
                                 label: '알림 시간',
                                 time: settings.dailySummaryTime,
                                 onTap: () async {
+                                  final todoProvider = context.read<TodoProvider>();
                                   final picked = await showTimePicker(
                                     context: context,
                                     initialTime: settings.dailySummaryTime,
                                   );
                                   if (picked != null) {
                                     await settings.setDailySummaryTime(picked);
-                                    final todoProvider = context.read<TodoProvider>();
                                     await todoProvider.scheduleDailySummaryNotification();
                                   }
                                 },
