@@ -43,3 +43,52 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# ========================================
+# Security - 보안 관련 파일 제외
+# ========================================
+
+# Environment variables
+*.env
+*.env.*
+.env.local
+.env.*.local
+
+# API Keys & Secrets
+**/secrets/
+**/credentials/
+*.secret
+*.secrets
+
+# Signing Keys
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+key.properties
+android/key.properties
+
+# Firebase / Google Services
+**/google-services.json
+**/GoogleService-Info.plist
+firebase.json
+.firebaserc
+
+# iOS Provisioning
+*.mobileprovision
+*.provisionprofile
+
+# macOS Keychain
+*.keychain
+*.keychain-db
+
+# Local configuration
+android/local.properties
+
+# Claude Code personal settings
+.claude/settings.local.json
+
+# IDE credentials
+.idea/httpRequests/
+.idea/dataSources/
