@@ -190,7 +190,7 @@ class NotificationService {
     );
 
     await _notifications.initialize(
-      initSettings,
+      settings: initSettings,
       onDidReceiveNotificationResponse: _onNotificationResponse,
     );
 
@@ -234,14 +234,12 @@ class NotificationService {
     );
 
     await _notifications.zonedSchedule(
-      'snooze_$todoId'.hashCode,
-      '스누즈 알림',
-      '$minutes분 후 다시 알립니다',
-      snoozeTime,
-      details,
+      id: 'snooze_$todoId'.hashCode,
+      title: '스누즈 알림',
+      body: '$minutes분 후 다시 알립니다',
+      scheduledDate: snoozeTime,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload.encode(),
     );
   }
@@ -259,14 +257,12 @@ class NotificationService {
     );
 
     await _notifications.zonedSchedule(
-      'snooze_${todo.id}'.hashCode,
-      _getSnoozeTitle(minutes),
-      todo.title,
-      snoozeTime,
-      details,
+      id: 'snooze_${todo.id}'.hashCode,
+      title: _getSnoozeTitle(minutes),
+      body: todo.title,
+      scheduledDate: snoozeTime,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       payload: payload.encode(),
     );
   }
@@ -399,14 +395,12 @@ class NotificationService {
   ) async {
     final reminderText = _getReminderText(offsetMinutes);
     await _notifications.zonedSchedule(
-      '${todo.id}_reminder_$offsetMinutes'.hashCode,
-      '$reminderText 후 마감',
-      todo.title,
-      reminderDate,
-      details,
+      id: '${todo.id}_reminder_$offsetMinutes'.hashCode,
+      title: '$reminderText 후 마감',
+      body: todo.title,
+      scheduledDate: reminderDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: null,
       payload: payload.encode(),
     );
@@ -431,14 +425,12 @@ class NotificationService {
     NotificationPayload payload,
   ) async {
     await _notifications.zonedSchedule(
-      todo.id.hashCode,
-      _getTitleForPriority(todo.priority),
-      todo.title,
-      scheduledDate,
-      details,
+      id: todo.id.hashCode,
+      title: _getTitleForPriority(todo.priority),
+      body: todo.title,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: null,
       payload: payload.encode(),
     );
@@ -465,14 +457,12 @@ class NotificationService {
     NotificationPayload payload,
   ) async {
     await _notifications.zonedSchedule(
-      todo.id.hashCode,
-      '📅 매일 할 일',
-      todo.title,
-      scheduledDate,
-      details,
+      id: todo.id.hashCode,
+      title: '📅 매일 할 일',
+      body: todo.title,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
       payload: payload.encode(),
     );
@@ -485,14 +475,12 @@ class NotificationService {
     NotificationPayload payload,
   ) async {
     await _notifications.zonedSchedule(
-      todo.id.hashCode,
-      '📅 매주 할 일',
-      todo.title,
-      scheduledDate,
-      details,
+      id: todo.id.hashCode,
+      title: '📅 매주 할 일',
+      body: todo.title,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
       payload: payload.encode(),
     );
@@ -505,14 +493,12 @@ class NotificationService {
     NotificationPayload payload,
   ) async {
     await _notifications.zonedSchedule(
-      todo.id.hashCode,
-      '📅 매월 할 일',
-      todo.title,
-      scheduledDate,
-      details,
+      id: todo.id.hashCode,
+      title: '📅 매월 할 일',
+      body: todo.title,
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
       payload: payload.encode(),
     );
@@ -533,14 +519,12 @@ class NotificationService {
       final nextDate = _getNextDayOfWeek(scheduledDate, dayOfWeek);
 
       await _notifications.zonedSchedule(
-        '${todo.id}_$dayOfWeek'.hashCode,
-        '📅 할 일 알림',
-        todo.title,
-        nextDate,
-        details,
+        id: '${todo.id}_$dayOfWeek'.hashCode,
+        title: '📅 할 일 알림',
+        body: todo.title,
+        scheduledDate: nextDate,
+        notificationDetails: details,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
         payload: payload.encode(),
       );
@@ -561,20 +545,20 @@ class NotificationService {
   }
 
   Future<void> cancelTodoNotification(String todoId) async {
-    await _notifications.cancel(todoId.hashCode);
+    await _notifications.cancel(id: todoId.hashCode);
 
     // 스누즈 알림 취소
-    await _notifications.cancel('snooze_$todoId'.hashCode);
+    await _notifications.cancel(id: 'snooze_$todoId'.hashCode);
 
     // 커스텀 요일 알림도 취소
     for (int i = 0; i < 7; i++) {
-      await _notifications.cancel('${todoId}_$i'.hashCode);
+      await _notifications.cancel(id: '${todoId}_$i'.hashCode);
     }
 
     // 사전 알림도 취소 (10분, 30분, 1시간, 1일)
     final reminderOffsets = [10, 30, 60, 1440];
     for (final offset in reminderOffsets) {
-      await _notifications.cancel('${todoId}_reminder_$offset'.hashCode);
+      await _notifications.cancel(id: '${todoId}_reminder_$offset'.hashCode);
     }
   }
 
@@ -611,21 +595,19 @@ class NotificationService {
     );
 
     await _notifications.zonedSchedule(
-      'daily_summary'.hashCode,
-      '📋 오늘의 미완료 할일',
-      '$incompleteCount개의 할일이 남아있습니다',
-      scheduledDate,
-      details,
+      id: 'daily_summary'.hashCode,
+      title: '📋 오늘의 미완료 할일',
+      body: '$incompleteCount개의 할일이 남아있습니다',
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
   /// 일일 요약 알림 취소
   Future<void> cancelDailySummary() async {
-    await _notifications.cancel('daily_summary'.hashCode);
+    await _notifications.cancel(id: 'daily_summary'.hashCode);
   }
 
   // 즉시 알림 테스트용
@@ -651,10 +633,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      0,
-      '테스트 알림',
-      '알림이 정상적으로 작동합니다!',
-      details,
+      id: 0,
+      title: '테스트 알림',
+      body: '알림이 정상적으로 작동합니다!',
+      notificationDetails: details,
       payload: payload.encode(),
     );
   }
@@ -670,10 +652,10 @@ class NotificationService {
     );
 
     await _notifications.show(
-      1,
-      '🔴 긴급 테스트 알림',
-      '긴급 알림이 정상적으로 작동합니다!',
-      details,
+      id: 1,
+      title: '🔴 긴급 테스트 알림',
+      body: '긴급 알림이 정상적으로 작동합니다!',
+      notificationDetails: details,
       payload: payload.encode(),
     );
   }
@@ -695,18 +677,18 @@ class NotificationService {
 
     if (isBreak) {
       await _notifications.show(
-        'focus_break'.hashCode,
-        '☕ 휴식 끝!',
-        '다시 집중할 준비가 되셨나요?',
-        details,
+        id: 'focus_break'.hashCode,
+        title: '☕ 휴식 끝!',
+        body: '다시 집중할 준비가 되셨나요?',
+        notificationDetails: details,
       );
     } else {
       final emoji = sessionsCompleted >= 4 ? '🏆' : '🍅';
       await _notifications.show(
-        'focus_work'.hashCode,
-        '$emoji 집중 완료!',
-        '$sessionsCompleted번째 세션 완료! 잠시 휴식하세요.',
-        details,
+        id: 'focus_work'.hashCode,
+        title: '$emoji 집중 완료!',
+        body: '$sessionsCompleted번째 세션 완료! 잠시 휴식하세요.',
+        notificationDetails: details,
       );
     }
   }
