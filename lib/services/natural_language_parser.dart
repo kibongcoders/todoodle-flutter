@@ -171,6 +171,16 @@ class NaturalLanguageParser {
       }
     }
 
+    // N일 후 (요일 패턴보다 먼저 체크 - "3일 후"에서 "일"이 요일로 매칭되는 것 방지)
+    final daysLaterPattern = RegExp(r'(\d+)\s*일\s*(후|뒤|있다가)');
+    final daysLaterMatch = daysLaterPattern.firstMatch(remaining);
+    if (daysLaterMatch != null) {
+      final days = int.parse(daysLaterMatch.group(1)!);
+      date = today.add(Duration(days: days));
+      remaining = remaining.replaceFirst(daysLaterMatch.group(0)!, '');
+      return _DateResult(remaining, date);
+    }
+
     // 이번 주 특정 요일
     final weekdayMap = {
       '월요일': 1, '월': 1,
@@ -204,16 +214,6 @@ class NaturalLanguageParser {
 
       date = today.add(Duration(days: daysToAdd));
       remaining = remaining.replaceFirst(weekdayMatch.group(0)!, '');
-      return _DateResult(remaining, date);
-    }
-
-    // N일 후
-    final daysLaterPattern = RegExp(r'(\d+)\s*일\s*(후|뒤|있다가)');
-    final daysLaterMatch = daysLaterPattern.firstMatch(remaining);
-    if (daysLaterMatch != null) {
-      final days = int.parse(daysLaterMatch.group(1)!);
-      date = today.add(Duration(days: days));
-      remaining = remaining.replaceFirst(daysLaterMatch.group(0)!, '');
       return _DateResult(remaining, date);
     }
 
