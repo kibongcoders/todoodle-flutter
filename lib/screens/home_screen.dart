@@ -564,41 +564,51 @@ class _HomeScreenState extends State<HomeScreen> {
           return _buildGroupedTodoList(context, todoProvider, categoryProvider);
         }
 
+        // 오늘 필터일 때 상단에 요약 표시
+        final showSummary = todoProvider.dateFilter == DateFilter.today;
+
         // 필터가 있으면 기존 리스트 사용
-        return ReorderableListView.builder(
-          padding: const EdgeInsets.only(top: 8, bottom: 100),
-          itemCount: rootTodos.length,
-          onReorder: (oldIndex, newIndex) {
-            todoProvider.reorderTodo(oldIndex, newIndex);
-          },
-          proxyDecorator: (child, index, animation) {
-            return AnimatedBuilder(
-              animation: animation,
-              builder: (context, child) {
-                final elevation = Tween<double>(begin: 0, end: 8).animate(animation).value;
-                return Material(
-                  elevation: elevation,
-                  borderRadius: BorderRadius.circular(16),
-                  child: child,
-                );
-              },
-              child: child,
-            );
-          },
-          itemBuilder: (context, index) {
-            final todo = rootTodos[index];
-            final category = todo.categoryIds.isNotEmpty
-                ? categoryProvider.getCategoryById(todo.categoryIds.first)
-                : null;
-            return TodoListItem(
-              key: ValueKey(todo.id),
-              todo: todo,
-              categoryEmoji: category?.emoji ?? '📌',
-              onToggle: () => todoProvider.toggleComplete(todo.id),
-              onTap: () => _openFormScreen(context, todo),
-              onDelete: () => todoProvider.softDeleteTodo(todo.id),
-            );
-          },
+        return Column(
+          children: [
+            if (showSummary) _buildTodaySummary(todoProvider),
+            Expanded(
+              child: ReorderableListView.builder(
+                padding: const EdgeInsets.only(top: 8, bottom: 100),
+                itemCount: rootTodos.length,
+                onReorder: (oldIndex, newIndex) {
+                  todoProvider.reorderTodo(oldIndex, newIndex);
+                },
+                proxyDecorator: (child, index, animation) {
+                  return AnimatedBuilder(
+                    animation: animation,
+                    builder: (context, child) {
+                      final elevation = Tween<double>(begin: 0, end: 8).animate(animation).value;
+                      return Material(
+                        elevation: elevation,
+                        borderRadius: BorderRadius.circular(16),
+                        child: child,
+                      );
+                    },
+                    child: child,
+                  );
+                },
+                itemBuilder: (context, index) {
+                  final todo = rootTodos[index];
+                  final category = todo.categoryIds.isNotEmpty
+                      ? categoryProvider.getCategoryById(todo.categoryIds.first)
+                      : null;
+                  return TodoListItem(
+                    key: ValueKey(todo.id),
+                    todo: todo,
+                    categoryEmoji: category?.emoji ?? '📌',
+                    onToggle: () => todoProvider.toggleComplete(todo.id),
+                    onTap: () => _openFormScreen(context, todo),
+                    onDelete: () => todoProvider.softDeleteTodo(todo.id),
+                  );
+                },
+              ),
+            ),
+          ],
         );
       },
     );
@@ -696,6 +706,109 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildTodaySummary(TodoProvider todoProvider) {
+    final incompleteCount = todoProvider.getTodayIncompleteCount();
+    final estimatedMinutes = todoProvider.getTodayTotalEstimatedMinutes();
+
+    // 예상 시간이 없으면 표시하지 않음
+    if (estimatedMinutes == 0 && incompleteCount == 0) {
+      return const SizedBox.shrink();
+    }
+
+    String timeText = '';
+    if (estimatedMinutes > 0) {
+      final hours = estimatedMinutes ~/ 60;
+      final mins = estimatedMinutes % 60;
+      if (hours > 0 && mins > 0) {
+        timeText = '예상 $hours시간 $mins분';
+      } else if (hours > 0) {
+        timeText = '예상 $hours시간';
+      } else {
+        timeText = '예상 $mins분';
+      }
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFF2E7D32).withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Text('📅', style: TextStyle(fontSize: 20)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '오늘 할 일 $incompleteCount개',
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2E7D32),
+                  ),
+                ),
+                if (timeText.isNotEmpty)
+                  Text(
+                    timeText,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (estimatedMinutes > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.timer_outlined,
+                    size: 14,
+                    color: Colors.grey[600],
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    _formatTotalTime(estimatedMinutes),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTotalTime(int minutes) {
+    final hours = minutes ~/ 60;
+    final mins = minutes % 60;
+    if (hours > 0 && mins > 0) {
+      return '${hours}h ${mins}m';
+    } else if (hours > 0) {
+      return '${hours}h';
+    } else {
+      return '${mins}m';
+    }
   }
 
   Widget _buildEmptyState(DateFilter filter, {String searchQuery = ''}) {
