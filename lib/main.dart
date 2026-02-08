@@ -95,6 +95,12 @@ class MyApp extends StatelessWidget {
           final todoProvider = TodoProvider();
           todoProvider.setSettingsProvider(settingsProvider);
           todoProvider.setForestProvider(forestProvider);
+
+          // 포모도로 세션 완료 시 할일의 실제 시간 업데이트
+          focusProvider.onWorkSessionComplete = (todoId, minutes) {
+            todoProvider.updateActualMinutes(todoId, minutes);
+          };
+
           return todoProvider;
         }),
         ChangeNotifierProvider.value(value: categoryProvider),

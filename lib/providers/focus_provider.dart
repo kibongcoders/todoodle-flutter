@@ -43,6 +43,9 @@ class FocusProvider extends ChangeNotifier {
   // 오늘의 집중 할일 (최대 3개)
   List<String> _focusTodoIds = [];
 
+  /// 작업 세션 완료 시 호출되는 콜백 (todoId, 완료된 분)
+  Function(String todoId, int minutes)? onWorkSessionComplete;
+
   // Getters
   int get workDuration => _workDuration;
   int get shortBreakDuration => _shortBreakDuration;
@@ -209,6 +212,14 @@ class FocusProvider extends ChangeNotifier {
         _currentSession!.actualDuration = _currentSession!.plannedDuration;
         _currentSession!.wasCompleted = true;
         await _sessionsBox.put(_currentSession!.id, _currentSession!);
+
+        // 할일의 실제 시간 업데이트 콜백 호출
+        final todoId = _currentSession!.todoId;
+        final completedMinutes = _currentSession!.actualDuration ~/ 60;
+        if (todoId != null && completedMinutes > 0) {
+          onWorkSessionComplete?.call(todoId, completedMinutes);
+        }
+
         _currentSession = null;
       }
 
