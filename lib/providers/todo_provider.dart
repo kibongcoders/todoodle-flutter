@@ -654,4 +654,79 @@ class TodoProvider extends ChangeNotifier {
 
     return result;
   }
+
+  // ========================================
+  // 예상 시간 관련 메서드
+  // ========================================
+
+  /// 오늘 할일의 총 예상 시간 (분)
+  int getTodayTotalEstimatedMinutes() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    return _box.values
+        .where((t) =>
+            !t.isCompleted &&
+            !t.isArchived &&
+            t.deletedAt == null &&
+            t.dueDate != null &&
+            t.dueDate!.isAfter(today.subtract(const Duration(seconds: 1))) &&
+            t.dueDate!.isBefore(tomorrow))
+        .fold(0, (sum, t) => sum + (t.estimatedMinutes ?? 0));
+  }
+
+  /// 오늘 완료된 할일의 총 시간 (분) - 실제 시간 또는 예상 시간
+  int getTodayCompletedMinutes() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    return _box.values
+        .where((t) =>
+            t.isCompleted &&
+            !t.isArchived &&
+            t.deletedAt == null &&
+            t.dueDate != null &&
+            t.dueDate!.isAfter(today.subtract(const Duration(seconds: 1))) &&
+            t.dueDate!.isBefore(tomorrow))
+        .fold(0, (sum, t) => sum + (t.actualMinutes ?? t.estimatedMinutes ?? 0));
+  }
+
+  /// 미완료 할일 개수 (오늘 마감)
+  int getTodayIncompleteCount() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    return _box.values
+        .where((t) =>
+            !t.isCompleted &&
+            !t.isArchived &&
+            t.deletedAt == null &&
+            t.dueDate != null &&
+            t.dueDate!.isAfter(today.subtract(const Duration(seconds: 1))) &&
+            t.dueDate!.isBefore(tomorrow))
+        .length;
+  }
+
+  /// 할일의 실제 시간 업데이트 (포모도로 완료 시 호출)
+  Future<void> updateActualMinutes(String todoId, int minutes) async {
+    final todo = _box.get(todoId);
+    if (todo != null) {
+      todo.actualMinutes = (todo.actualMinutes ?? 0) + minutes;
+      await todo.save();
+      notifyListeners();
+    }
+  }
+
+  /// 할일의 예상 시간 업데이트
+  Future<void> updateEstimatedMinutes(String todoId, int? minutes) async {
+    final todo = _box.get(todoId);
+    if (todo != null) {
+      todo.estimatedMinutes = minutes;
+      await todo.save();
+      notifyListeners();
+    }
+  }
 }
