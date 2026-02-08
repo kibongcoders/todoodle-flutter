@@ -79,6 +79,48 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
     }
   }
 
+  // 예상 시간 라벨
+  String? _getTimeLabel() {
+    if (widget.todo.estimatedMinutes == null || widget.todo.estimatedMinutes == 0) {
+      return null;
+    }
+
+    final estimated = widget.todo.estimatedMinutes!;
+    final actual = widget.todo.actualMinutes ?? 0;
+
+    // 실제 시간이 있으면 "실제/예상" 형식으로 표시
+    if (actual > 0) {
+      return '$actual/$estimated분';
+    }
+
+    // 시간 포맷팅
+    if (estimated >= 60) {
+      final hours = estimated ~/ 60;
+      final mins = estimated % 60;
+      if (mins > 0) {
+        return '$hours시간 $mins분';
+      }
+      return '$hours시간';
+    }
+    return '$estimated분';
+  }
+
+  // 시간 진행률 색상
+  Color _getTimeProgressColor() {
+    final estimated = widget.todo.estimatedMinutes ?? 0;
+    final actual = widget.todo.actualMinutes ?? 0;
+
+    if (estimated == 0) return const Color(0xFF78909C);
+
+    final ratio = actual / estimated;
+    if (ratio >= 1.0) {
+      return const Color(0xFF4CAF50); // 완료
+    } else if (ratio >= 0.5) {
+      return const Color(0xFF2196F3); // 진행 중
+    }
+    return const Color(0xFF78909C); // 시작 전
+  }
+
   // 반복 주기 라벨
   String? _getRecurrenceLabel() {
     switch (widget.todo.recurrence) {
@@ -507,6 +549,40 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
                                               color: Color(0xFF9C27B0),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                  // 예상 시간 뱃지
+                                  if (_getTimeLabel() != null) ...[
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: _getTimeProgressColor().withValues(alpha: 0.15),
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.timer_outlined,
+                                            size: 10,
+                                            color: widget.todo.isCompleted
+                                                ? Colors.grey[400]
+                                                : _getTimeProgressColor(),
+                                          ),
+                                          const SizedBox(width: 3),
+                                          Text(
+                                            _getTimeLabel()!,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: widget.todo.isCompleted
+                                                  ? Colors.grey[400]
+                                                  : _getTimeProgressColor(),
                                             ),
                                           ),
                                         ],
