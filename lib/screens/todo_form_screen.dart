@@ -40,6 +40,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
   List<int> _reminderOffsets = [];
   late List<String> _tags;
   final _tagController = TextEditingController();
+  int? _estimatedMinutes;
 
   // 애니메이션 컨트롤러
   late AnimationController _startDateAnimController;
@@ -97,6 +98,9 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
 
     // 태그 초기화
     _tags = widget.todo?.tags ?? [];
+
+    // 예상 시간 초기화
+    _estimatedMinutes = widget.todo?.estimatedMinutes;
 
     // 애니메이션 초기화
     _startDateAnimController = AnimationController(
@@ -400,6 +404,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         notificationEnabled: _notificationEnabled,
         reminderOffsets: _reminderOffsets.isNotEmpty ? _reminderOffsets : null,
         tags: _tags,
+        estimatedMinutes: _estimatedMinutes,
       );
     } else {
       provider.addTodo(
@@ -415,6 +420,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         notificationEnabled: _notificationEnabled,
         reminderOffsets: _reminderOffsets.isNotEmpty ? _reminderOffsets : null,
         tags: _tags,
+        estimatedMinutes: _estimatedMinutes,
       );
     }
 
@@ -863,6 +869,11 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
       ),
       const SizedBox(height: 24),
 
+      // 예상 시간 섹션
+      _buildEstimatedTimeSection(),
+
+      const SizedBox(height: 24),
+
       // 태그 섹션
       _buildTagsSection(),
 
@@ -1164,6 +1175,222 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
           const SizedBox(height: 12),
           child,
         ],
+      ),
+    );
+  }
+
+  Widget _buildEstimatedTimeSection() {
+    return _buildSectionCard(
+      emoji: '⏱️',
+      title: '예상 시간',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 빠른 선택 버튼
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _buildTimeChip(15, '15분'),
+              _buildTimeChip(30, '30분'),
+              _buildTimeChip(60, '1시간'),
+              _buildTimeChip(120, '2시간'),
+              // 직접 입력 버튼
+              ActionChip(
+                avatar: Icon(
+                  Icons.edit_outlined,
+                  size: 16,
+                  color: _estimatedMinutes != null &&
+                          ![15, 30, 60, 120].contains(_estimatedMinutes)
+                      ? Colors.white
+                      : const Color(0xFF2E7D32),
+                ),
+                label: Text(
+                  _estimatedMinutes != null &&
+                          ![15, 30, 60, 120].contains(_estimatedMinutes)
+                      ? _formatMinutes(_estimatedMinutes!)
+                      : '직접 입력',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: _estimatedMinutes != null &&
+                            ![15, 30, 60, 120].contains(_estimatedMinutes)
+                        ? Colors.white
+                        : const Color(0xFF2E7D32),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                backgroundColor: _estimatedMinutes != null &&
+                        ![15, 30, 60, 120].contains(_estimatedMinutes)
+                    ? const Color(0xFF2E7D32)
+                    : const Color(0xFFA8E6CF).withValues(alpha: 0.3),
+                side: BorderSide.none,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                onPressed: () => _showTimeInputDialog(),
+              ),
+            ],
+          ),
+          // 선택 해제 버튼
+          if (_estimatedMinutes != null) ...[
+            const SizedBox(height: 12),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _estimatedMinutes = null;
+                });
+              },
+              child: Text(
+                '시간 설정 해제',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[500],
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeChip(int minutes, String label) {
+    final isSelected = _estimatedMinutes == minutes;
+    return ActionChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 13,
+          color: isSelected ? Colors.white : const Color(0xFF2E7D32),
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      backgroundColor: isSelected
+          ? const Color(0xFF2E7D32)
+          : const Color(0xFFA8E6CF).withValues(alpha: 0.3),
+      side: BorderSide.none,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      onPressed: () {
+        setState(() {
+          _estimatedMinutes = isSelected ? null : minutes;
+        });
+      },
+    );
+  }
+
+  String _formatMinutes(int minutes) {
+    if (minutes < 60) {
+      return '$minutes분';
+    } else if (minutes % 60 == 0) {
+      return '${minutes ~/ 60}시간';
+    } else {
+      return '${minutes ~/ 60}시간 ${minutes % 60}분';
+    }
+  }
+
+  void _showTimeInputDialog() {
+    int hours = (_estimatedMinutes ?? 0) ~/ 60;
+    int mins = (_estimatedMinutes ?? 0) % 60;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Row(
+            children: [
+              Text('⏱️', style: TextStyle(fontSize: 20)),
+              SizedBox(width: 8),
+              Text('예상 시간 입력'),
+            ],
+          ),
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 시간 선택
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (hours < 12) {
+                        setDialogState(() => hours++);
+                      }
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_up),
+                  ),
+                  Text(
+                    '$hours',
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                  const Text('시간', style: TextStyle(fontSize: 12)),
+                  IconButton(
+                    onPressed: () {
+                      if (hours > 0) {
+                        setDialogState(() => hours--);
+                      }
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 24),
+              // 분 선택
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      if (mins < 55) {
+                        setDialogState(() => mins += 5);
+                      }
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_up),
+                  ),
+                  Text(
+                    mins.toString().padLeft(2, '0'),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF2E7D32),
+                    ),
+                  ),
+                  const Text('분', style: TextStyle(fontSize: 12)),
+                  IconButton(
+                    onPressed: () {
+                      if (mins >= 5) {
+                        setDialogState(() => mins -= 5);
+                      }
+                    },
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('취소'),
+            ),
+            FilledButton(
+              onPressed: () {
+                final totalMinutes = hours * 60 + mins;
+                setState(() {
+                  _estimatedMinutes = totalMinutes > 0 ? totalMinutes : null;
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
       ),
     );
   }

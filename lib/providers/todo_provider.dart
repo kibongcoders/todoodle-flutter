@@ -357,6 +357,7 @@ class TodoProvider extends ChangeNotifier {
     bool? notificationEnabled,
     List<int>? reminderOffsets,
     List<String>? tags,
+    int? estimatedMinutes,
   }) {
     final todo = _box.get(id);
     if (todo != null) {
@@ -371,6 +372,7 @@ class TodoProvider extends ChangeNotifier {
       if (notificationEnabled != null) todo.notificationEnabled = notificationEnabled;
       if (reminderOffsets != null) todo.reminderOffsets = reminderOffsets;
       if (tags != null) todo.tags = tags;
+      todo.estimatedMinutes = estimatedMinutes;
       todo.save();
 
       // 마감일이 있고 알림이 활성화되어 있으면 알림 스케줄링
