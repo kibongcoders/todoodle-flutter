@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/todo_provider.dart';
 import '../services/notification_service.dart';
+import 'achievements_screen.dart';
 import 'archive_screen.dart';
 import 'trash_screen.dart';
 
@@ -216,6 +217,23 @@ class SettingsScreen extends StatelessWidget {
                       ],
                     );
                   },
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 업적 섹션
+              _buildSectionCard(
+                emoji: '🏆',
+                title: '업적',
+                child: _buildNavigationRow(
+                  context,
+                  icon: '🎖️',
+                  title: '내 업적',
+                  subtitle: '획득한 업적을 확인합니다',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
