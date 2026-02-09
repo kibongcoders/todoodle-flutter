@@ -3,11 +3,13 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
+import 'models/achievement.dart';
 import 'models/category.dart';
 import 'models/focus_session.dart';
 import 'models/plant.dart';
 import 'models/template.dart';
 import 'models/todo.dart';
+import 'providers/achievement_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/focus_provider.dart';
 import 'providers/forest_provider.dart';
@@ -36,6 +38,9 @@ void main() async {
   Hive.registerAdapter(FocusSessionAdapter());
   Hive.registerAdapter(TodoTemplateAdapter());
   Hive.registerAdapter(TemplateItemAdapter());
+  // Phase 4 모델 어댑터
+  Hive.registerAdapter(AchievementAdapter());
+  Hive.registerAdapter(AchievementTypeAdapter());
   await Hive.openBox<Todo>('todos');
 
   final categoryProvider = CategoryProvider();
@@ -62,12 +67,22 @@ void main() async {
   final templateProvider = TemplateProvider();
   await templateProvider.init();
 
+  // 업적 Provider 초기화
+  final achievementProvider = AchievementProvider();
+  await achievementProvider.init();
+
+  // 숲 성장 시 업적 체크 연결
+  forestProvider.onPlantFullyGrown = (totalPlantsGrown) {
+    achievementProvider.onPlantGrown(totalPlantsGrown: totalPlantsGrown);
+  };
+
   runApp(MyApp(
     categoryProvider: categoryProvider,
     settingsProvider: settingsProvider,
     forestProvider: forestProvider,
     focusProvider: focusProvider,
     templateProvider: templateProvider,
+    achievementProvider: achievementProvider,
   ));
 }
 
@@ -79,6 +94,7 @@ class MyApp extends StatelessWidget {
     required this.forestProvider,
     required this.focusProvider,
     required this.templateProvider,
+    required this.achievementProvider,
   });
 
   final CategoryProvider categoryProvider;
@@ -86,6 +102,7 @@ class MyApp extends StatelessWidget {
   final ForestProvider forestProvider;
   final FocusProvider focusProvider;
   final TemplateProvider templateProvider;
+  final AchievementProvider achievementProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -95,10 +112,17 @@ class MyApp extends StatelessWidget {
           final todoProvider = TodoProvider();
           todoProvider.setSettingsProvider(settingsProvider);
           todoProvider.setForestProvider(forestProvider);
+          todoProvider.setAchievementProvider(achievementProvider);
 
-          // 포모도로 세션 완료 시 할일의 실제 시간 업데이트
+          // 포모도로 세션 완료 시 할일의 실제 시간 업데이트 및 업적 체크
           focusProvider.onWorkSessionComplete = (todoId, minutes) {
             todoProvider.updateActualMinutes(todoId, minutes);
+            // 집중 모드 업적 체크
+            final stats = focusProvider.getTodayStats();
+            achievementProvider.onFocusSessionCompleted(
+              totalFocusMinutes: stats['totalMinutes'] as int,
+              todayFocusMinutes: stats['totalMinutes'] as int,
+            );
           };
 
           return todoProvider;
@@ -108,6 +132,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: forestProvider),
         ChangeNotifierProvider.value(value: focusProvider),
         ChangeNotifierProvider.value(value: templateProvider),
+        ChangeNotifierProvider.value(value: achievementProvider),
       ],
       child: MaterialApp(
         title: 'todorest',

@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/todo.dart';
 import '../services/notification_service.dart';
+import 'achievement_provider.dart';
 import 'forest_provider.dart';
 import 'settings_provider.dart';
 
@@ -20,6 +21,7 @@ class TodoProvider extends ChangeNotifier {
 
   SettingsProvider? _settingsProvider;
   ForestProvider? _forestProvider;
+  AchievementProvider? _achievementProvider;
 
   void setSettingsProvider(SettingsProvider provider) {
     _settingsProvider = provider;
@@ -28,6 +30,10 @@ class TodoProvider extends ChangeNotifier {
 
   void setForestProvider(ForestProvider provider) {
     _forestProvider = provider;
+  }
+
+  void setAchievementProvider(AchievementProvider provider) {
+    _achievementProvider = provider;
   }
 
   /// 알림 액션 콜백 설정
@@ -399,9 +405,10 @@ class TodoProvider extends ChangeNotifier {
         todo.completionHistory = history;
       }
 
-      // 완료 상태로 변경될 때 식물 성장
+      // 완료 상태로 변경될 때 식물 성장 및 업적 체크
       if (!wasCompleted && todo.isCompleted) {
         _forestProvider?.growPlant();
+        _checkAchievements();
       }
 
       todo.save();
@@ -730,5 +737,42 @@ class TodoProvider extends ChangeNotifier {
       await todo.save();
       notifyListeners();
     }
+  }
+
+  // ========================================
+  // 업적 체크
+  // ========================================
+
+  /// 업적 체크 (할일 완료 시 호출)
+  void _checkAchievements() {
+    if (_achievementProvider == null || _forestProvider == null) return;
+
+    final totalCompleted = _box.values
+        .where((t) => t.isCompleted && !t.isArchived && t.deletedAt == null)
+        .length;
+
+    final currentStreak = _forestProvider!.currentStreak;
+
+    // 오늘 할일 전체 완료 여부 체크
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    final todayTodos = _box.values.where((t) =>
+        !t.isArchived &&
+        t.deletedAt == null &&
+        t.dueDate != null &&
+        t.dueDate!.isAfter(today.subtract(const Duration(seconds: 1))) &&
+        t.dueDate!.isBefore(tomorrow));
+
+    final isTodayAllCompleted =
+        todayTodos.isNotEmpty && todayTodos.every((t) => t.isCompleted);
+
+    _achievementProvider!.onTodoCompleted(
+      totalCompleted: totalCompleted,
+      currentStreak: currentStreak,
+      completedAt: DateTime.now(),
+      isTodayAllCompleted: isTodayAllCompleted,
+    );
   }
 }

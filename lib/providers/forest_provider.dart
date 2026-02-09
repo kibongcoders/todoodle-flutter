@@ -19,6 +19,9 @@ class ForestProvider extends ChangeNotifier {
   Plant? _currentPlant;
   bool _initialized = false;
 
+  /// 식물이 다 자랐을 때 호출되는 콜백
+  Function(int totalPlantsGrown)? onPlantFullyGrown;
+
   // Getters
   Plant? get currentPlant => _currentPlant;
   bool get initialized => _initialized;
@@ -127,8 +130,12 @@ class ForestProvider extends ChangeNotifier {
     if (plant.growthStage >= plant.maxGrowthStage) {
       plant.isFullyGrown = true;
       plant.completedAt = DateTime.now();
-      await _statsBox.put('totalPlantsGrown', totalPlantsGrown + 1);
+      final newTotal = totalPlantsGrown + 1;
+      await _statsBox.put('totalPlantsGrown', newTotal);
       await plant.save();
+
+      // 콜백 호출 (업적 체크용)
+      onPlantFullyGrown?.call(newTotal);
 
       // 새 식물 시작
       _startNewPlant();
