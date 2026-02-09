@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
+import '../providers/forest_provider.dart';
 import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
 import '../services/speech_service.dart';
@@ -711,9 +712,11 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTodaySummary(TodoProvider todoProvider) {
     final incompleteCount = todoProvider.getTodayIncompleteCount();
     final estimatedMinutes = todoProvider.getTodayTotalEstimatedMinutes();
+    final forestProvider = context.watch<ForestProvider>();
+    final currentStreak = forestProvider.currentStreak;
 
-    // 예상 시간이 없으면 표시하지 않음
-    if (estimatedMinutes == 0 && incompleteCount == 0) {
+    // 아무 정보도 없으면 표시하지 않음
+    if (estimatedMinutes == 0 && incompleteCount == 0 && currentStreak == 0) {
       return const SizedBox.shrink();
     }
 
@@ -767,6 +770,32 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+          // 스트릭 표시
+          if (currentStreak > 0) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text('🔥', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 4),
+                  Text(
+                    '$currentStreak일',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFFFF6B35),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
           if (estimatedMinutes > 0)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
