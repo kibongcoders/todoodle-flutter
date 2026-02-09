@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/achievement_provider.dart';
+import '../widgets/achievement_popup.dart';
 import 'calendar_screen.dart';
 import 'focus_screen.dart';
 import 'habit_screen.dart';
@@ -23,6 +26,20 @@ class _MainScreenState extends State<MainScreen> {
     HabitScreen(),
     SettingsScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // 업적 획득 시 팝업 표시 설정
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final achievementProvider = context.read<AchievementProvider>();
+      achievementProvider.onAchievementUnlocked = (achievement) {
+        if (mounted) {
+          AchievementPopup.show(context, achievement);
+        }
+      };
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
