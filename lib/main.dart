@@ -19,6 +19,7 @@ import 'providers/todo_provider.dart';
 import 'screens/main_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/notification_service.dart';
+import 'shared/themes/doodle_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -137,78 +138,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'todoodle',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFA8E6CF),
-            brightness: Brightness.light,
-          ),
-          useMaterial3: true,
-          scaffoldBackgroundColor: const Color(0xFFF0FFF4),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Color(0xFFE8F5E9),
-            foregroundColor: Color(0xFF2E7D32),
-            elevation: 0,
-            centerTitle: true,
-          ),
-          cardTheme: CardThemeData(
-            color: Colors.white,
-            elevation: 3,
-            shadowColor: const Color(0xFFA8E6CF).withValues(alpha: 0.4),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            backgroundColor: Color(0xFFA8E6CF),
-            foregroundColor: Color(0xFF2E7D32),
-            elevation: 4,
-            shape: CircleBorder(),
-          ),
-          chipTheme: ChipThemeData(
-            backgroundColor: const Color(0xFFE8F5E9),
-            selectedColor: const Color(0xFFA8E6CF),
-            labelStyle: const TextStyle(color: Color(0xFF2E7D32)),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-          inputDecorationTheme: InputDecorationTheme(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFB2DFDB)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFB2DFDB)),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Color(0xFFA8E6CF), width: 2),
-            ),
-          ),
-          filledButtonTheme: FilledButtonThemeData(
-            style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFA8E6CF),
-              foregroundColor: const Color(0xFF2E7D32),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-          checkboxTheme: CheckboxThemeData(
-            fillColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) {
-                return const Color(0xFFA8E6CF);
-              }
-              return Colors.white;
-            }),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
-          ),
-        ),
+        theme: DoodleTheme.light,
         home: const AppEntry(),
       ),
     );
