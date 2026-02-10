@@ -135,7 +135,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: achievementProvider),
       ],
       child: MaterialApp(
-        title: 'todorest',
+        title: 'todoodle',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(

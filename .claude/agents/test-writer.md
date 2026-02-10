@@ -63,7 +63,7 @@ test/
 ### Unit Test Template
 ```dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todorest/providers/todo_provider.dart';
+import 'package:todoodle/providers/todo_provider.dart';
 
 void main() {
   group('TodoProvider', () {

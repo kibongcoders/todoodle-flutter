@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todorest/services/natural_language_parser.dart';
+import 'package:todoodle/services/natural_language_parser.dart';
 
 void main() {
   late NaturalLanguageParser parser;

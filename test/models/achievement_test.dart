@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todorest/models/achievement.dart';
+import 'package:todoodle/models/achievement.dart';
 
 void main() {
   group('Achievement', () {

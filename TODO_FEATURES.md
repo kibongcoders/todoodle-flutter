@@ -1,4 +1,4 @@
-# todorest 추가 기능 목록
+# todoodle 추가 기능 목록
 
 ## 우선순위 높음 (High Priority)
 

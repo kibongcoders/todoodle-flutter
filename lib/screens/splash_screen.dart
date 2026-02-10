@@ -123,7 +123,7 @@ class _SplashScreenState extends State<SplashScreen>
                 child: FadeTransition(
                   opacity: _textOpacity,
                   child: const Text(
-                    'todorest',
+                    'todoodle',
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.w600,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:todorest/models/template.dart';
-import 'package:todorest/models/todo.dart';
+import 'package:todoodle/models/template.dart';
+import 'package:todoodle/models/todo.dart';
 
 void main() {
   group('TodoTemplate', () {

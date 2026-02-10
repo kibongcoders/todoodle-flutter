@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
-import 'package:todorest/models/achievement.dart';
-import 'package:todorest/providers/achievement_provider.dart';
+import 'package:todoodle/models/achievement.dart';
+import 'package:todoodle/providers/achievement_provider.dart';
 
 void main() {
   late AchievementProvider provider;
