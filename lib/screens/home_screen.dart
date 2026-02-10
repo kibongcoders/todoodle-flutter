@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../core/constants/doodle_colors.dart';
+import '../core/constants/doodle_typography.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/forest_provider.dart';
 import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
 import '../services/speech_service.dart';
+import '../shared/widgets/doodle_background.dart';
 import '../widgets/todo_list_item.dart';
 import 'category_screen.dart';
 import 'template_screen.dart';
@@ -108,22 +111,25 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(width: 8),
             ],
           ),
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxWidth: isVeryWide ? 1200 : double.infinity,
-                ),
-                child: Column(
-                  children: [
-                    // 빠른 입력창
-                    _buildQuickInput(context),
-                    // 할일 목록
-                    Expanded(
-                      child: _buildTodoList(context, isWide, isVeryWide),
-                    ),
-                  ],
+          backgroundColor: DoodleColors.paperCream,
+          body: DoodleLinedBackground(
+            lineSpacing: 28,
+            child: SafeArea(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isVeryWide ? 1200 : double.infinity,
+                  ),
+                  child: Column(
+                    children: [
+                      // 빠른 입력창
+                      _buildQuickInput(context),
+                      // 할일 목록
+                      Expanded(
+                        child: _buildTodoList(context, isWide, isVeryWide),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -142,13 +148,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        color: DoodleColors.paperWhite,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: DoodleColors.pencilLight.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: DoodleColors.paperShadow,
+            blurRadius: 2,
+            offset: Offset(1, 2),
           ),
         ],
       ),
@@ -157,11 +167,11 @@ class _HomeScreenState extends State<HomeScreen> {
         focusNode: _searchFocusNode,
         decoration: InputDecoration(
           hintText: '할일 검색...',
-          hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-          prefixIcon: Icon(Icons.search, color: Colors.grey[400], size: 20),
+          hintStyle: DoodleTypography.hint,
+          prefixIcon: const Icon(Icons.search, color: DoodleColors.pencilLight, size: 20),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, color: Colors.grey[400], size: 20),
+                  icon: const Icon(Icons.clear, color: DoodleColors.pencilLight, size: 20),
                   onPressed: () {
                     _searchController.clear();
                     context.read<TodoProvider>().clearSearch();
@@ -171,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         ),
-        style: const TextStyle(fontSize: 14),
+        style: DoodleTypography.bodyMedium,
         onChanged: (value) {
           context.read<TodoProvider>().setSearchQuery(value);
           setState(() {});
@@ -187,14 +197,17 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-        boxShadow: [
+        color: DoodleColors.paperWhite,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: DoodleColors.pencilLight.withValues(alpha: 0.5),
+          width: 1.5,
+        ),
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: DoodleColors.paperShadow,
+            blurRadius: 2,
+            offset: Offset(2, 2),
           ),
         ],
       ),
@@ -203,9 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 4),
           // 템플릿 버튼
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               Icons.dashboard_customize_outlined,
-              color: Colors.grey[400],
+              color: DoodleColors.pencilLight,
               size: 22,
             ),
             onPressed: () => Navigator.push(
@@ -222,12 +235,12 @@ class _HomeScreenState extends State<HomeScreen> {
               focusNode: _quickInputFocusNode,
               decoration: InputDecoration(
                 hintText: '"내일 3시 회의" 또는 "긴급 보고서 작성"',
-                hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+                hintStyle: DoodleTypography.hint,
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 12),
                 isDense: true,
               ),
-              style: const TextStyle(fontSize: 15),
+              style: DoodleTypography.bodyMedium,
               textInputAction: TextInputAction.done,
               onSubmitted: (value) => _submitQuickInput(context),
             ),
@@ -236,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(
               _isListening ? Icons.mic : Icons.mic_none_outlined,
-              color: _isListening ? const Color(0xFFE53935) : Colors.grey[400],
+              color: _isListening ? DoodleColors.crayonRed : DoodleColors.pencilLight,
               size: 22,
             ),
             onPressed: () => _speechService.startListening(),
@@ -250,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: const BoxDecoration(
-                  color: Color(0xFF2E7D32),
+                  color: DoodleColors.primary,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
@@ -315,20 +328,26 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: _isSearching
-              ? const Color(0xFF2E7D32)
-              : Colors.white.withValues(alpha: 0.9),
-          shape: BoxShape.circle,
-          boxShadow: [
+              ? DoodleColors.primary
+              : DoodleColors.paperWhite,
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: _isSearching
+                ? DoodleColors.primary
+                : DoodleColors.pencilLight.withValues(alpha: 0.5),
+            width: 1.5,
+          ),
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: DoodleColors.paperShadow,
+              blurRadius: 1,
+              offset: Offset(1, 1),
             ),
           ],
         ),
         child: Icon(
           _isSearching ? Icons.close : Icons.search,
-          color: _isSearching ? Colors.white : const Color(0xFF2E7D32),
+          color: _isSearching ? Colors.white : DoodleColors.primary,
           size: 20,
         ),
       ),
@@ -346,23 +365,27 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () => _showFilterBottomSheet(context),
           icon: Badge(
             isLabelVisible: hasFilter,
-            backgroundColor: const Color(0xFF2E7D32),
+            backgroundColor: DoodleColors.primary,
             child: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.9),
-                shape: BoxShape.circle,
-                boxShadow: [
+                color: DoodleColors.paperWhite,
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: DoodleColors.pencilLight.withValues(alpha: 0.5),
+                  width: 1.5,
+                ),
+                boxShadow: const [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    color: DoodleColors.paperShadow,
+                    blurRadius: 1,
+                    offset: Offset(1, 1),
                   ),
                 ],
               ),
               child: const Icon(
                 Icons.filter_list,
-                color: Color(0xFF2E7D32),
+                color: DoodleColors.primary,
                 size: 20,
               ),
             ),
@@ -377,9 +400,13 @@ class _HomeScreenState extends State<HomeScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => DecoratedBox(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: DoodleColors.paperWhite,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          border: Border.all(
+            color: DoodleColors.pencilLight.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
         ),
         child: SafeArea(
           child: Consumer2<TodoProvider, CategoryProvider>(
@@ -396,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         width: 40,
                         height: 4,
                         decoration: BoxDecoration(
-                          color: Colors.grey[300],
+                          color: DoodleColors.pencilLight,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -404,12 +431,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 20),
 
                     // 날짜 필터 섹션
-                    const Text(
+                    Text(
                       '날짜 필터',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2E7D32),
+                      style: DoodleTypography.titleMedium.copyWith(
+                        color: DoodleColors.primary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -453,12 +478,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           '카테고리',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF2E7D32),
+                          style: DoodleTypography.titleMedium.copyWith(
+                            color: DoodleColors.primary,
                           ),
                         ),
                         TextButton(
@@ -528,10 +551,15 @@ class _HomeScreenState extends State<HomeScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[100],
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected
+              ? DoodleColors.highlightYellow
+              : DoodleColors.paperWhite,
+          borderRadius: BorderRadius.circular(4),
           border: Border.all(
-            color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[300]!,
+            color: isSelected
+                ? DoodleColors.pencilDark
+                : DoodleColors.pencilLight.withValues(alpha: 0.5),
+            width: 1.5,
           ),
         ),
         child: Row(
@@ -541,10 +569,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 14,
+              style: DoodleTypography.labelMedium.copyWith(
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Colors.white : Colors.grey[700],
+                color: isSelected ? DoodleColors.pencilDark : DoodleColors.pencilLight,
               ),
             ),
           ],
@@ -627,15 +654,15 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     final grouped = todoProvider.getGroupedTodos();
 
-    // 섹션 정의 (순서, 이름, 이모지, 색상)
+    // Doodle 스타일 섹션 정의 (순서, 이름, 이모지, 색상)
     final sections = [
-      ('overdue', '지연됨', '🚨', const Color(0xFFE53935)),
-      ('today', '오늘', '📅', const Color(0xFF2E7D32)),
-      ('tomorrow', '내일', '🌅', const Color(0xFFFFA726)),
-      ('thisWeek', '이번 주', '📆', const Color(0xFF42A5F5)),
-      ('later', '나중에', '🗓️', Colors.grey[600]!),
-      ('noDueDate', '마감일 없음', '📌', Colors.grey[500]!),
-      ('completed', '완료됨', '✅', Colors.grey[400]!),
+      ('overdue', '지연됨', '🚨', DoodleColors.crayonRed),
+      ('today', '오늘', '📅', DoodleColors.primary),
+      ('tomorrow', '내일', '🌅', DoodleColors.crayonOrange),
+      ('thisWeek', '이번 주', '📆', DoodleColors.inkBlue),
+      ('later', '나중에', '🗓️', DoodleColors.pencilLight),
+      ('noDueDate', '마감일 없음', '📌', DoodleColors.pencilLight),
+      ('completed', '완료됨', '✅', DoodleColors.pencilLight),
     ];
 
     return ListView.builder(
@@ -687,9 +714,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 8),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+            style: DoodleTypography.titleMedium.copyWith(
               color: color,
             ),
           ),
@@ -698,12 +723,11 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(4),
             ),
             child: Text(
               '$count',
-              style: TextStyle(
-                fontSize: 12,
+              style: DoodleTypography.badge.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color,
               ),
@@ -742,10 +766,11 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        color: DoodleColors.highlightGreen.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: const Color(0xFF2E7D32).withValues(alpha: 0.2),
+          color: DoodleColors.primary.withValues(alpha: 0.3),
+          width: 1.5,
         ),
       ),
       child: Row(
@@ -758,18 +783,15 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Text(
                   '오늘 할 일 $incompleteCount개',
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2E7D32),
+                  style: DoodleTypography.titleSmall.copyWith(
+                    color: DoodleColors.primary,
                   ),
                 ),
                 if (timeText.isNotEmpty)
                   Text(
                     timeText,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[600],
+                    style: DoodleTypography.bodySmall.copyWith(
+                      color: DoodleColors.pencilDark.withValues(alpha: 0.7),
                     ),
                   ),
               ],
@@ -780,8 +802,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFFFF6B35).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
+                color: DoodleColors.crayonOrange.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -790,10 +812,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 4),
                   Text(
                     '$currentStreak일',
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: DoodleTypography.badge.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFFFF6B35),
+                      color: DoodleColors.crayonOrange,
                     ),
                   ),
                 ],
@@ -805,8 +826,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: const Color(0xFF2E7D32).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
+                color: DoodleColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -814,15 +835,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   Icon(
                     Icons.timer_outlined,
                     size: 14,
-                    color: Colors.grey[600],
+                    color: DoodleColors.pencilDark.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     _formatTotalTime(estimatedMinutes),
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.grey[700],
+                    style: DoodleTypography.badge.copyWith(
+                      color: DoodleColors.pencilDark.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -883,18 +902,15 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 16),
           Text(
             title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF2E7D32),
+            style: DoodleTypography.headlineSmall.copyWith(
+              color: DoodleColors.primary,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             subtitle,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[500],
+            style: DoodleTypography.bodyMedium.copyWith(
+              color: DoodleColors.pencilLight,
             ),
           ),
           if (filter == DateFilter.all && searchQuery.isEmpty) ...[
@@ -905,12 +921,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 vertical: 8,
               ),
               decoration: BoxDecoration(
-                color: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(20),
+                color: DoodleColors.highlightYellow.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(
+                  color: DoodleColors.pencilLight.withValues(alpha: 0.3),
+                ),
               ),
-              child: const Text(
+              child: Text(
                 '오른쪽 아래 + 버튼을 눌러주세요!',
                 textAlign: TextAlign.center,
+                style: DoodleTypography.bodyMedium,
               ),
             ),
           ],

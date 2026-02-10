@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/constants/doodle_colors.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
@@ -176,10 +177,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFA8E6CF),
-              onPrimary: Color(0xFF2E7D32),
-              surface: Colors.white,
-              onSurface: Color(0xFF2E7D32),
+              primary: DoodleColors.primaryLight,
+              onPrimary: DoodleColors.primary,
+              surface: DoodleColors.paperWhite,
+              onSurface: DoodleColors.pencilDark,
             ),
           ),
           child: child!,
@@ -213,10 +214,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFA8E6CF),
-              onPrimary: Color(0xFF2E7D32),
-              surface: Colors.white,
-              onSurface: Color(0xFF2E7D32),
+              primary: DoodleColors.primaryLight,
+              onPrimary: DoodleColors.primary,
+              surface: DoodleColors.paperWhite,
+              onSurface: DoodleColors.pencilDark,
             ),
           ),
           child: child!,
@@ -247,10 +248,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFA8E6CF),
-              onPrimary: Color(0xFF2E7D32),
-              surface: Colors.white,
-              onSurface: Color(0xFF2E7D32),
+              primary: DoodleColors.primaryLight,
+              onPrimary: DoodleColors.primary,
+              surface: DoodleColors.paperWhite,
+              onSurface: DoodleColors.pencilDark,
             ),
           ),
           child: child!,
@@ -284,10 +285,10 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: Color(0xFFA8E6CF),
-              onPrimary: Color(0xFF2E7D32),
-              surface: Colors.white,
-              onSurface: Color(0xFF2E7D32),
+              primary: DoodleColors.primaryLight,
+              onPrimary: DoodleColors.primary,
+              surface: DoodleColors.paperWhite,
+              onSurface: DoodleColors.pencilDark,
             ),
           ),
           child: child!,

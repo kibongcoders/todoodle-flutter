@@ -254,8 +254,8 @@ class DoodleTheme {
       ),
 
       // === ListTile ===
-      listTileTheme: const ListTileThemeData(
-        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         titleTextStyle: DoodleTypography.titleMedium,
         subtitleTextStyle: DoodleTypography.bodySmall,
         iconColor: DoodleColors.pencilDark,
@@ -268,7 +268,7 @@ class DoodleTheme {
       ),
 
       // === Text Theme ===
-      textTheme: const TextTheme(
+      textTheme: TextTheme(
         displayLarge: DoodleTypography.headlineLarge,
         displayMedium: DoodleTypography.headlineMedium,
         displaySmall: DoodleTypography.headlineSmall,
@@ -287,12 +287,12 @@ class DoodleTheme {
       ),
 
       // === Tab Bar ===
-      tabBarTheme: const TabBarThemeData(
+      tabBarTheme: TabBarThemeData(
         labelColor: DoodleColors.pencilDark,
         unselectedLabelColor: DoodleColors.pencilLight,
         labelStyle: DoodleTypography.labelLarge,
         unselectedLabelStyle: DoodleTypography.labelMedium,
-        indicator: UnderlineTabIndicator(
+        indicator: const UnderlineTabIndicator(
           borderSide: BorderSide(
             color: DoodleColors.primary,
             width: 3,
@@ -304,7 +304,7 @@ class DoodleTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: DoodleColors.paperWhite,
         indicatorColor: DoodleColors.primaryLight,
-        labelTextStyle: const WidgetStatePropertyAll(DoodleTypography.labelSmall),
+        labelTextStyle: WidgetStatePropertyAll(DoodleTypography.labelSmall),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const IconThemeData(color: DoodleColors.primaryDark);

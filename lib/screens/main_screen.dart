@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/constants/doodle_colors.dart';
+import '../core/constants/doodle_typography.dart';
 import '../providers/achievement_provider.dart';
 import '../widgets/achievement_popup.dart';
 import 'calendar_screen.dart';
@@ -50,11 +52,17 @@ class _MainScreenState extends State<MainScreen> {
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: DoodleColors.paperWhite,
+          border: const Border(
+            top: BorderSide(
+              color: DoodleColors.paperGrid,
+              width: 1.5,
+            ),
+          ),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-              blurRadius: 10,
+              color: DoodleColors.paperShadow.withValues(alpha: 0.5),
+              blurRadius: 4,
               offset: const Offset(0, -2),
             ),
           ],
@@ -113,26 +121,31 @@ class _MainScreenState extends State<MainScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFA8E6CF).withValues(alpha: 0.3)
+              ? DoodleColors.highlightYellow.withValues(alpha: 0.5)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(4),
+          border: isSelected
+              ? Border.all(
+                  color: DoodleColors.pencilLight.withValues(alpha: 0.5),
+                  width: 1,
+                )
+              : null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               icon,
-              color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[400],
+              color: isSelected ? DoodleColors.primary : DoodleColors.pencilLight,
               size: 24,
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
               Text(
                 label,
-                style: const TextStyle(
-                  color: Color(0xFF2E7D32),
+                style: DoodleTypography.labelMedium.copyWith(
+                  color: DoodleColors.primary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
                 ),
               ),
             ],
