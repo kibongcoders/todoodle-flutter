@@ -118,10 +118,10 @@ class MyApp extends StatelessWidget {
           focusProvider.onWorkSessionComplete = (todoId, minutes) {
             todoProvider.updateActualMinutes(todoId, minutes);
             // 집중 모드 업적 체크
-            final stats = focusProvider.getTodayStats();
+            final todayStats = focusProvider.getTodayStats();
             achievementProvider.onFocusSessionCompleted(
-              totalFocusMinutes: stats['totalMinutes'] as int,
-              todayFocusMinutes: stats['totalMinutes'] as int,
+              totalFocusMinutes: focusProvider.getAllTimeFocusMinutes(),
+              todayFocusMinutes: todayStats['totalMinutes'] as int,
             );
           };
 

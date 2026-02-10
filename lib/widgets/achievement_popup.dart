@@ -2,17 +2,34 @@ import 'package:flutter/material.dart';
 
 import '../models/achievement.dart';
 
-/// 업적 획득 팝업을 표시합니다
+/// 업적 획득 팝업을 표시합니다 (큐 지원)
 class AchievementPopup {
   AchievementPopup._();
 
   static OverlayEntry? _currentOverlay;
+  static final List<Achievement> _queue = [];
+  static BuildContext? _context;
+  static bool _isShowing = false;
 
-  /// 업적 획득 팝업 표시
+  /// 업적 획득 팝업 표시 (큐에 추가)
   static void show(BuildContext context, Achievement achievement) {
-    // 이전 팝업이 있으면 제거
-    _currentOverlay?.remove();
+    _context = context;
+    _queue.add(achievement);
 
+    // 현재 표시 중이 아니면 다음 팝업 표시
+    if (!_isShowing) {
+      _showNext();
+    }
+  }
+
+  static void _showNext() {
+    if (_queue.isEmpty || _context == null) {
+      _isShowing = false;
+      return;
+    }
+
+    _isShowing = true;
+    final achievement = _queue.removeAt(0);
     final meta = AchievementMeta.getMeta(achievement.type);
 
     _currentOverlay = OverlayEntry(
@@ -21,11 +38,21 @@ class AchievementPopup {
         onDismiss: () {
           _currentOverlay?.remove();
           _currentOverlay = null;
+          // 다음 팝업 표시 (약간의 딜레이 후)
+          Future.delayed(const Duration(milliseconds: 300), _showNext);
         },
       ),
     );
 
-    Overlay.of(context).insert(_currentOverlay!);
+    Overlay.of(_context!).insert(_currentOverlay!);
+  }
+
+  /// 모든 팝업 즉시 닫기
+  static void dismissAll() {
+    _queue.clear();
+    _currentOverlay?.remove();
+    _currentOverlay = null;
+    _isShowing = false;
   }
 }
 

@@ -346,6 +346,19 @@ class FocusProvider extends ChangeNotifier {
     return totalSeconds ~/ 60;
   }
 
+  /// 전체 누적 집중 시간 (분)
+  int getAllTimeFocusMinutes() {
+    final sessions = _sessionsBox.values.where((s) =>
+        s.type == FocusSessionType.work && s.wasCompleted);
+
+    int totalSeconds = 0;
+    for (final session in sessions) {
+      totalSeconds += session.actualDuration;
+    }
+
+    return totalSeconds ~/ 60;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
