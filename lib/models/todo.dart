@@ -102,10 +102,10 @@ class Todo extends HiveObject {
   @HiveField(14)
   List<DateTime>? completionHistory; // 완료 이력 (습관 트래커용)
 
-  @HiveField(15)
+  @HiveField(15, defaultValue: 0)
   int sortOrder; // 수동 정렬 순서
 
-  @HiveField(16)
+  @HiveField(16, defaultValue: false)
   bool isArchived; // 아카이브 여부
 
   @HiveField(17)

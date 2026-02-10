@@ -7,7 +7,9 @@ class SpeechService {
   SpeechService._internal();
   static final SpeechService _instance = SpeechService._internal();
 
-  final SpeechToText _speech = SpeechToText();
+  // 완전 지연 초기화 - macOS TCC 크래시 방지
+  SpeechToText? _speech;
+
   bool _isInitialized = false;
   bool _isListening = false;
 
@@ -19,12 +21,18 @@ class SpeechService {
   Function(String error)? onError;
   Function()? onListeningStateChanged;
 
+  /// SpeechToText 인스턴스 생성 (지연)
+  SpeechToText _getSpeech() {
+    _speech ??= SpeechToText();
+    return _speech!;
+  }
+
   /// 음성 인식 초기화
   Future<bool> init() async {
     if (_isInitialized) return true;
 
     try {
-      _isInitialized = await _speech.initialize(
+      _isInitialized = await _getSpeech().initialize(
         onStatus: _onStatus,
         onError: _onError,
         debugLogging: kDebugMode,
@@ -70,7 +78,7 @@ class SpeechService {
       _isListening = true;
       onListeningStateChanged?.call();
 
-      await _speech.listen(
+      await _getSpeech().listen(
         onResult: _onResult,
         localeId: 'ko_KR', // 한국어
         listenFor: const Duration(seconds: 30),
@@ -98,7 +106,7 @@ class SpeechService {
   Future<void> stopListening() async {
     if (!_isListening) return;
 
-    await _speech.stop();
+    await _speech?.stop();
     _isListening = false;
     onListeningStateChanged?.call();
   }
@@ -107,7 +115,7 @@ class SpeechService {
   Future<void> cancelListening() async {
     if (!_isListening) return;
 
-    await _speech.cancel();
+    await _speech?.cancel();
     _isListening = false;
     onListeningStateChanged?.call();
   }
@@ -115,11 +123,11 @@ class SpeechService {
   /// 사용 가능한 로케일 목록
   Future<List<LocaleName>> getLocales() async {
     if (!_isInitialized) await init();
-    return _speech.locales();
+    return _getSpeech().locales();
   }
 
   void dispose() {
-    _speech.stop();
+    _speech?.stop();
     _isListening = false;
   }
 }

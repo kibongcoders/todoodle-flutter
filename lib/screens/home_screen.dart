@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +41,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initSpeech() async {
+    // macOS에서는 TCC 정책으로 인해 음성 인식 초기화 건너뜀
+    if (Platform.isMacOS) return;
+
     await _speechService.init();
     _speechService.onResult = (text) {
       setState(() {
