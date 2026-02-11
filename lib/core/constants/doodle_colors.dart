@@ -87,6 +87,48 @@ class DoodleColors {
   static const crayonBrown = Color(0xFFA1887F);
 
   // ============================================
+  // Post-it Note Colors (포스트잇 컬러)
+  // ============================================
+
+  /// 포스트잇 노랑 (기본)
+  static const postItYellow = Color(0xFFFFF59D);
+
+  /// 포스트잇 핑크
+  static const postItPink = Color(0xFFF8BBD9);
+
+  /// 포스트잇 블루
+  static const postItBlue = Color(0xFFB3E5FC);
+
+  /// 포스트잇 그린
+  static const postItGreen = Color(0xFFC8E6C9);
+
+  /// 포스트잇 오렌지
+  static const postItOrange = Color(0xFFFFE0B2);
+
+  /// 포스트잇 퍼플
+  static const postItPurple = Color(0xFFE1BEE7);
+
+  /// 포스트잇 색상 목록 (우선순위별)
+  static const List<Color> postItColors = [
+    postItBlue, // veryLow
+    postItGreen, // low
+    postItYellow, // medium
+    postItOrange, // high
+    postItPink, // veryHigh
+  ];
+
+  /// 우선순위에 따른 포스트잇 색상 반환
+  static Color getPostItColor(int priorityIndex) {
+    if (priorityIndex >= 0 && priorityIndex < postItColors.length) {
+      return postItColors[priorityIndex];
+    }
+    return postItYellow;
+  }
+
+  /// 완료된 아이템용 포스트잇 (연한 회색)
+  static const postItCompleted = Color(0xFFEEEEEE);
+
+  // ============================================
   // Priority Colors (우선순위 컬러)
   // ============================================
 

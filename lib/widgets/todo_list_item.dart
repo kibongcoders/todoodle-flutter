@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,25 +35,45 @@ class TodoListItem extends StatefulWidget {
 
 class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderStateMixin {
   bool _isExpanded = true;
+  late final double _rotation;
+  late final double _offsetX;
 
-  // Doodle 스타일 우선순위 색상
-  Color _priorityColor(Priority priority) {
-    return DoodleColors.getPriorityColor(priority.index);
+  @override
+  void initState() {
+    super.initState();
+    // 각 아이템마다 약간씩 다른 회전값과 오프셋 부여 (자연스러운 포스트잇 느낌)
+    final random = math.Random(widget.todo.id.hashCode);
+    _rotation = (random.nextDouble() - 0.5) * 0.03; // -1.5° ~ 1.5°
+    _offsetX = (random.nextDouble() - 0.5) * 4; // -2px ~ 2px
   }
 
-  // 우선순위 라벨
-  String _priorityLabel(Priority priority) {
+  // 포스트잇 색상 (우선순위 기반)
+  Color _getPostItColor() {
+    if (widget.todo.isCompleted) {
+      return DoodleColors.postItCompleted;
+    }
+    return DoodleColors.getPostItColor(widget.todo.priority.index);
+  }
+
+  // 포스트잇 테두리 색상 (배경보다 약간 진한 색)
+  Color _getPostItBorderColor() {
+    final baseColor = _getPostItColor();
+    return Color.lerp(baseColor, Colors.black, 0.1)!;
+  }
+
+  // 우선순위 이모지
+  String _priorityEmoji(Priority priority) {
     switch (priority) {
       case Priority.veryHigh:
-        return '비상';
+        return '🔥';
       case Priority.high:
-        return '높음';
+        return '⭐';
       case Priority.medium:
-        return '보통';
+        return '📌';
       case Priority.low:
-        return '낮음';
+        return '🌿';
       case Priority.veryLow:
-        return '매우 낮음';
+        return '💤';
     }
   }
 
@@ -64,12 +86,10 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
     final estimated = widget.todo.estimatedMinutes!;
     final actual = widget.todo.actualMinutes ?? 0;
 
-    // 실제 시간이 있으면 "실제/예상" 형식으로 표시
     if (actual > 0) {
       return '$actual/$estimated분';
     }
 
-    // 시간 포맷팅
     if (estimated >= 60) {
       final hours = estimated ~/ 60;
       final mins = estimated % 60;
@@ -79,22 +99,6 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
       return '$hours시간';
     }
     return '$estimated분';
-  }
-
-  // 시간 진행률 색상
-  Color _getTimeProgressColor() {
-    final estimated = widget.todo.estimatedMinutes ?? 0;
-    final actual = widget.todo.actualMinutes ?? 0;
-
-    if (estimated == 0) return DoodleColors.pencilLight;
-
-    final ratio = actual / estimated;
-    if (ratio >= 1.0) {
-      return DoodleColors.crayonGreen; // 완료
-    } else if (ratio >= 0.5) {
-      return DoodleColors.inkBlue; // 진행 중
-    }
-    return DoodleColors.pencilLight; // 시작 전
   }
 
   // 반복 주기 라벨
@@ -172,26 +176,6 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
     return dueDate.isBefore(today);
   }
 
-  String _buildSubtitle() {
-    final parts = <String>[];
-
-    // 카테고리 이모지
-    parts.add(widget.categoryEmoji);
-
-    // 마감일이 있으면 표시
-    if (widget.todo.dueDate != null) {
-      final due = widget.todo.dueDate!;
-      parts.add('${due.month}/${due.day}');
-    }
-
-    // 설명이 있으면 표시
-    if (widget.todo.description != null && widget.todo.description!.isNotEmpty) {
-      parts.add(widget.todo.description!);
-    }
-
-    return parts.join(' · ');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer2<TodoProvider, CategoryProvider>(
@@ -201,393 +185,27 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
 
         return Column(
           children: [
-            Dismissible(
-              key: Key(widget.todo.id),
-              direction: DismissDirection.horizontal,
-              // 오른쪽으로 스와이프 (완료/미완료 토글)
-              background: Container(
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.only(left: 24),
-                margin: EdgeInsets.only(
-                  left: 16 + (widget.depth * 20).toDouble(),
-                  right: 16,
-                  top: 4,
-                  bottom: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: widget.todo.isCompleted
-                      ? DoodleColors.highlightYellow.withValues(alpha: 0.5)
-                      : DoodleColors.highlightGreen.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: widget.todo.isCompleted
-                        ? DoodleColors.crayonOrange
-                        : DoodleColors.crayonGreen,
-                    width: 1.5,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      widget.todo.isCompleted
-                          ? Icons.replay_rounded
-                          : Icons.check_circle_rounded,
-                      color: widget.todo.isCompleted
-                          ? DoodleColors.crayonOrange
-                          : DoodleColors.crayonGreen,
-                      size: 28,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      widget.todo.isCompleted ? '미완료' : '완료',
-                      style: TextStyle(
-                        color: widget.todo.isCompleted
-                            ? DoodleColors.crayonOrange
-                            : DoodleColors.crayonGreen,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // 왼쪽으로 스와이프 (삭제)
-              secondaryBackground: Container(
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.only(right: 24),
-                margin: EdgeInsets.only(
-                  left: 16 + (widget.depth * 20).toDouble(),
-                  right: 16,
-                  top: 4,
-                  bottom: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: DoodleColors.highlightPink.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(
-                    color: DoodleColors.crayonRed,
-                    width: 1.5,
-                  ),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Icon(Icons.delete_rounded, color: DoodleColors.crayonRed, size: 28),
-                    SizedBox(width: 8),
-                    Text('삭제', style: TextStyle(color: DoodleColors.crayonRed, fontWeight: FontWeight.w600)),
-                    SizedBox(width: 16),
-                  ],
-                ),
-              ),
-              confirmDismiss: (direction) async {
-                if (direction == DismissDirection.startToEnd) {
-                  // 완료/미완료 토글
-                  widget.onToggle();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        widget.todo.isCompleted
-                            ? '"${widget.todo.title}" 미완료로 변경'
-                            : '"${widget.todo.title}" 완료!',
-                      ),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      action: SnackBarAction(
-                        label: '취소',
-                        onPressed: () => widget.onToggle(),
-                      ),
-                    ),
-                  );
-                  return false; // 항목 유지
-                }
-                // 삭제 확인 다이얼로그
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('할일 삭제'),
-                    content: Text('"${widget.todo.title}"을(를) 삭제하시겠습니까?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, false),
-                        child: const Text('취소'),
-                      ),
-                      TextButton(
-                        onPressed: () => Navigator.pop(context, true),
-                        style: TextButton.styleFrom(foregroundColor: DoodleColors.crayonRed),
-                        child: const Text('삭제'),
-                      ),
-                    ],
-                  ),
-                );
-                return confirmed ?? false;
-              },
-              onDismissed: (direction) {
-                if (direction == DismissDirection.endToStart) {
-                  widget.onDelete();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('"${widget.todo.title}" 삭제됨'),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-              },
-              child: GestureDetector(
-                onTap: widget.onTap,
-                child: Container(
-                  margin: EdgeInsets.only(
-                    left: 16 + (widget.depth * 20).toDouble(),
-                    right: 16,
-                    top: 4,
-                    bottom: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: widget.todo.isCompleted
-                        ? DoodleColors.paperCream
-                        : _isOverdue()
-                            ? DoodleColors.highlightPink.withValues(alpha: 0.3)
-                            : DoodleColors.paperWhite,
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: widget.todo.isCompleted
-                          ? DoodleColors.pencilLight.withValues(alpha: 0.3)
-                          : _isOverdue()
-                              ? DoodleColors.crayonRed
-                              : _priorityColor(widget.todo.priority).withValues(alpha: 0.5),
-                      width: 1.5,
-                    ),
-                    boxShadow: widget.todo.isCompleted
-                        ? null
-                        : const [
-                            BoxShadow(
-                              color: DoodleColors.paperShadow,
-                              offset: Offset(2, 2),
-                              blurRadius: 1,
-                            ),
-                          ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                    child: Row(
-                      children: [
-                        // 확장/축소 버튼
-                        if (hasChildren)
-                          GestureDetector(
-                            onTap: () => setState(() => _isExpanded = !_isExpanded),
-                            child: Container(
-                              width: 28,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: DoodleColors.paperWhite,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                  color: DoodleColors.pencilLight.withValues(alpha: 0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              child: AnimatedRotation(
-                                turns: _isExpanded ? 0.25 : 0,
-                                duration: const Duration(milliseconds: 200),
-                                child: Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: widget.todo.isCompleted
-                                      ? DoodleColors.pencilLight
-                                      : DoodleColors.pencilDark,
-                                  size: 20,
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          const SizedBox(width: 4),
-
-                        const SizedBox(width: 8),
-
-                        // Doodle 스타일 체크박스
-                        DoodleCheckbox(
-                          value: widget.todo.isCompleted,
-                          onChanged: (_) => widget.onToggle(),
-                          size: 28,
-                          checkColor: DoodleColors.crayonRed,
-                          boxColor: _priorityColor(widget.todo.priority),
-                        ),
-
-                        const SizedBox(width: 12),
-
-                        // 내용 영역
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              // 제목
-                              Text(
-                                widget.todo.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: widget.todo.isCompleted
-                                    ? DoodleTypography.todoTitleCompleted
-                                    : DoodleTypography.todoTitle,
-                              ),
-                              const SizedBox(height: 4),
-                              // 메타 정보 (카테고리 + 날짜 + 설명)
-                              Row(
-                                children: [
-                                  // 우선순위 뱃지
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                    decoration: BoxDecoration(
-                                      color: widget.todo.isCompleted
-                                          ? DoodleColors.paperGrid
-                                          : _priorityColor(widget.todo.priority).withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      _priorityLabel(widget.todo.priority),
-                                      style: DoodleTypography.badge.copyWith(
-                                        color: widget.todo.isCompleted
-                                            ? DoodleColors.pencilLight
-                                            : _priorityColor(widget.todo.priority),
-                                      ),
-                                    ),
-                                  ),
-                                  // D-Day 뱃지 (마감일이 있을 때만)
-                                  if (_getDDay() != null && !widget.todo.isCompleted) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: _getDDayColor().withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                          color: _getDDayColor().withValues(alpha: 0.5),
-                                          width: 1,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        _getDDay()!,
-                                        style: DoodleTypography.badge.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          color: _getDDayColor(),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  // 반복 주기 뱃지
-                                  if (_getRecurrenceLabel() != null && !widget.todo.isCompleted) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: DoodleColors.crayonPurple.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          const Icon(
-                                            Icons.repeat_rounded,
-                                            size: 10,
-                                            color: DoodleColors.crayonPurple,
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(
-                                            _getRecurrenceLabel()!,
-                                            style: DoodleTypography.badge.copyWith(
-                                              color: DoodleColors.crayonPurple,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  // 예상 시간 뱃지
-                                  if (_getTimeLabel() != null) ...[
-                                    const SizedBox(width: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: _getTimeProgressColor().withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.timer_outlined,
-                                            size: 10,
-                                            color: widget.todo.isCompleted
-                                                ? DoodleColors.pencilLight
-                                                : _getTimeProgressColor(),
-                                          ),
-                                          const SizedBox(width: 3),
-                                          Text(
-                                            _getTimeLabel()!,
-                                            style: DoodleTypography.badge.copyWith(
-                                              color: widget.todo.isCompleted
-                                                  ? DoodleColors.pencilLight
-                                                  : _getTimeProgressColor(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                  const SizedBox(width: 8),
-                                  // 부가 정보
-                                  Expanded(
-                                    child: Text(
-                                      _buildSubtitle(),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: DoodleTypography.bodySmall.copyWith(
-                                        color: widget.todo.isCompleted
-                                            ? DoodleColors.pencilLight
-                                            : DoodleColors.pencilDark.withValues(alpha: 0.7),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        const SizedBox(width: 8),
-
-                        // 액션 버튼들
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // 하위 할일 추가 버튼
-                            _ActionButton(
-                              onTap: () => _openFormScreen(context, null, parentId: widget.todo.id),
-                              icon: Icons.add_rounded,
-                              color: widget.todo.isCompleted
-                                  ? DoodleColors.pencilLight
-                                  : DoodleColors.crayonGreen,
-                              backgroundColor: DoodleColors.highlightGreen.withValues(alpha: 0.4),
-                            ),
-                            const SizedBox(width: 6),
-                            // 삭제 버튼
-                            _ActionButton(
-                              onTap: widget.onDelete,
-                              icon: Icons.delete_outline_rounded,
-                              color: widget.todo.isCompleted
-                                  ? DoodleColors.pencilLight
-                                  : DoodleColors.crayonRed,
-                              backgroundColor: DoodleColors.highlightPink.withValues(alpha: 0.5),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+            // 포스트잇 아이템
+            Transform.translate(
+              offset: Offset(_offsetX, 0),
+              child: Transform.rotate(
+                angle: _rotation,
+                child: Dismissible(
+                  key: Key(widget.todo.id),
+                  direction: DismissDirection.horizontal,
+                  background: _buildSwipeBackground(isComplete: true),
+                  secondaryBackground: _buildSwipeBackground(isComplete: false),
+                  confirmDismiss: (direction) => _handleDismiss(direction, context),
+                  onDismissed: (direction) => _onDismissed(direction, context),
+                  child: GestureDetector(
+                    onTap: widget.onTap,
+                    child: _buildPostItCard(hasChildren),
                   ),
                 ),
               ),
             ),
 
-            // 하위 할일 목록 (애니메이션)
+            // 하위 할일 목록
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
               secondChild: Column(
@@ -615,6 +233,367 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
         );
       },
     );
+  }
+
+  Widget _buildPostItCard(bool hasChildren) {
+    final isOverdue = _isOverdue();
+
+    return Container(
+      margin: EdgeInsets.only(
+        left: 16 + (widget.depth * 16).toDouble(),
+        right: 16,
+        top: 6,
+        bottom: 6,
+      ),
+      child: Stack(
+        children: [
+          // 포스트잇 본체
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: _getPostItColor(),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(2),
+                topRight: Radius.circular(2),
+                bottomLeft: Radius.circular(4),
+                bottomRight: Radius.circular(4),
+              ),
+              border: Border(
+                left: BorderSide(color: _getPostItBorderColor(), width: 1),
+                right: BorderSide(color: _getPostItBorderColor(), width: 1),
+                bottom: BorderSide(color: _getPostItBorderColor(), width: 1),
+              ),
+              boxShadow: widget.todo.isCompleted
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        offset: const Offset(2, 3),
+                        blurRadius: 4,
+                        spreadRadius: 0,
+                      ),
+                    ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 상단 접착 부분 (테이프 효과)
+                Container(
+                  height: 8,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        _getPostItBorderColor().withValues(alpha: 0.3),
+                        _getPostItColor(),
+                      ],
+                    ),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(2),
+                    ),
+                  ),
+                ),
+                // 포스트잇 내용
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 확장/축소 버튼
+                      if (hasChildren)
+                        GestureDetector(
+                          onTap: () => setState(() => _isExpanded = !_isExpanded),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 2, right: 8),
+                            child: AnimatedRotation(
+                              turns: _isExpanded ? 0.25 : 0,
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                Icons.chevron_right_rounded,
+                                color: widget.todo.isCompleted
+                                    ? DoodleColors.pencilLight
+                                    : DoodleColors.pencilDark,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      // 체크박스
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: DoodleCheckbox(
+                          value: widget.todo.isCompleted,
+                          onChanged: (_) => widget.onToggle(),
+                          size: 24,
+                          checkColor: DoodleColors.crayonRed,
+                          boxColor: DoodleColors.pencilDark,
+                        ),
+                      ),
+
+                      // 내용 영역
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 제목 행
+                            Row(
+                              children: [
+                                // 우선순위 이모지
+                                if (!widget.todo.isCompleted)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 6),
+                                    child: Text(
+                                      _priorityEmoji(widget.todo.priority),
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
+                                  ),
+                                // 제목
+                                Expanded(
+                                  child: Text(
+                                    widget.todo.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: widget.todo.isCompleted
+                                        ? DoodleTypography.todoTitleCompleted
+                                        : DoodleTypography.todoTitle.copyWith(
+                                            color: isOverdue
+                                                ? DoodleColors.crayonRed
+                                                : DoodleColors.inkBlack,
+                                          ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 6),
+
+                            // 메타 정보 (스티커 스타일)
+                            Wrap(
+                              spacing: 6,
+                              runSpacing: 4,
+                              children: [
+                                // 카테고리 이모지
+                                _StickerBadge(
+                                  emoji: widget.categoryEmoji,
+                                  isCompleted: widget.todo.isCompleted,
+                                ),
+                                // D-Day 뱃지
+                                if (_getDDay() != null && !widget.todo.isCompleted)
+                                  _StickerBadge(
+                                    text: _getDDay()!,
+                                    color: _getDDayColor(),
+                                    isCompleted: widget.todo.isCompleted,
+                                  ),
+                                // 반복 뱃지
+                                if (_getRecurrenceLabel() != null && !widget.todo.isCompleted)
+                                  _StickerBadge(
+                                    emoji: '🔄',
+                                    text: _getRecurrenceLabel()!,
+                                    color: DoodleColors.crayonPurple,
+                                    isCompleted: widget.todo.isCompleted,
+                                  ),
+                                // 시간 뱃지
+                                if (_getTimeLabel() != null)
+                                  _StickerBadge(
+                                    emoji: '⏱',
+                                    text: _getTimeLabel()!,
+                                    color: DoodleColors.inkBlue,
+                                    isCompleted: widget.todo.isCompleted,
+                                  ),
+                                // 마감일
+                                if (widget.todo.dueDate != null && !widget.todo.isCompleted)
+                                  _StickerBadge(
+                                    emoji: '📅',
+                                    text: '${widget.todo.dueDate!.month}/${widget.todo.dueDate!.day}',
+                                    isCompleted: widget.todo.isCompleted,
+                                  ),
+                              ],
+                            ),
+
+                            // 설명이 있으면 표시
+                            if (widget.todo.description != null &&
+                                widget.todo.description!.isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                widget.todo.description!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: DoodleTypography.bodySmall.copyWith(
+                                  color: widget.todo.isCompleted
+                                      ? DoodleColors.pencilLight
+                                      : DoodleColors.pencilDark.withValues(alpha: 0.7),
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // 마감 지남 표시 (빨간 스탬프 효과)
+          if (isOverdue)
+            Positioned(
+              right: 8,
+              top: 12,
+              child: Transform.rotate(
+                angle: -0.15,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border.all(
+                      color: DoodleColors.crayonRed.withValues(alpha: 0.8),
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    '지연!',
+                    style: DoodleTypography.badge.copyWith(
+                      color: DoodleColors.crayonRed,
+                      fontWeight: FontWeight.w900,
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // 완료 체크 표시
+          if (widget.todo.isCompleted)
+            Positioned(
+              right: 8,
+              top: 12,
+              child: Transform.rotate(
+                angle: -0.1,
+                child: Text(
+                  '✓',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                    color: DoodleColors.crayonGreen.withValues(alpha: 0.6),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSwipeBackground({required bool isComplete}) {
+    final color = isComplete
+        ? (widget.todo.isCompleted ? DoodleColors.crayonOrange : DoodleColors.crayonGreen)
+        : DoodleColors.crayonRed;
+    final icon = isComplete
+        ? (widget.todo.isCompleted ? Icons.replay_rounded : Icons.check_rounded)
+        : Icons.delete_rounded;
+    final text = isComplete
+        ? (widget.todo.isCompleted ? '미완료' : '완료!')
+        : '삭제';
+
+    return Container(
+      alignment: isComplete ? Alignment.centerLeft : Alignment.centerRight,
+      padding: EdgeInsets.only(left: isComplete ? 24 : 0, right: isComplete ? 0 : 24),
+      margin: EdgeInsets.only(
+        left: 16 + (widget.depth * 16).toDouble(),
+        right: 16,
+        top: 6,
+        bottom: 6,
+      ),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!isComplete) ...[
+            Text(
+              text,
+              style: DoodleTypography.labelMedium.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(width: 8),
+          ],
+          Icon(icon, color: color, size: 28),
+          if (isComplete) ...[
+            const SizedBox(width: 8),
+            Text(
+              text,
+              style: DoodleTypography.labelMedium.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _handleDismiss(DismissDirection direction, BuildContext context) async {
+    if (direction == DismissDirection.startToEnd) {
+      widget.onToggle();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.todo.isCompleted
+                ? '"${widget.todo.title}" 미완료로 변경'
+                : '"${widget.todo.title}" 완료! 🎉',
+          ),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: '취소',
+            onPressed: () => widget.onToggle(),
+          ),
+        ),
+      );
+      return false;
+    }
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('할일 삭제'),
+        content: Text('"${widget.todo.title}"을(를) 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('취소'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: DoodleColors.crayonRed),
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onDismissed(DismissDirection direction, BuildContext context) {
+    if (direction == DismissDirection.endToStart) {
+      widget.onDelete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('"${widget.todo.title}" 삭제됨'),
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _openFormScreen(BuildContext context, Todo? todo, {String? parentId}) {
@@ -647,40 +626,56 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
   }
 }
 
-// Doodle 스타일 액션 버튼 위젯
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.onTap,
-    required this.icon,
-    required this.color,
-    required this.backgroundColor,
+/// 스티커 스타일 뱃지 (손으로 붙인 스티커 느낌)
+class _StickerBadge extends StatelessWidget {
+  const _StickerBadge({
+    this.emoji,
+    this.text,
+    this.color,
+    this.isCompleted = false,
   });
 
-  final VoidCallback onTap;
-  final IconData icon;
-  final Color color;
-  final Color backgroundColor;
+  final String? emoji;
+  final String? text;
+  final Color? color;
+  final bool isCompleted;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-            width: 1,
-          ),
+    final displayColor = isCompleted ? DoodleColors.pencilLight : (color ?? DoodleColors.pencilDark);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: isCompleted
+            ? DoodleColors.paperGrid.withValues(alpha: 0.5)
+            : (color?.withValues(alpha: 0.15) ?? DoodleColors.paperWhite),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isCompleted
+              ? DoodleColors.pencilLight.withValues(alpha: 0.3)
+              : displayColor.withValues(alpha: 0.4),
+          width: 1,
         ),
-        child: Icon(
-          icon,
-          color: color,
-          size: 20,
-        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (emoji != null)
+            Text(
+              emoji!,
+              style: TextStyle(fontSize: isCompleted ? 10 : 11),
+            ),
+          if (emoji != null && text != null) const SizedBox(width: 3),
+          if (text != null)
+            Text(
+              text!,
+              style: DoodleTypography.badge.copyWith(
+                color: displayColor,
+                fontSize: 10,
+              ),
+            ),
+        ],
       ),
     );
   }

@@ -1,12 +1,14 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../core/constants/doodle_colors.dart';
 
 /// Doodle 스타일 체크박스 위젯
 ///
-/// 손으로 그린 듯한 체크박스입니다.
-/// - 미완료: 약간 삐뚤한 빈 네모
-/// - 완료: 빨간 체크마크 (휙 그은 느낌)
+/// 포스트잇에 연필로 그린 듯한 손그림 체크박스입니다.
+/// - 미완료: 연필로 그린 원
+/// - 완료: 원 안에 휙 그은 체크마크
 class DoodleCheckbox extends StatefulWidget {
   const DoodleCheckbox({
     super.key,
@@ -15,7 +17,7 @@ class DoodleCheckbox extends StatefulWidget {
     this.size = 24,
     this.checkColor,
     this.boxColor,
-    this.animationDuration = const Duration(milliseconds: 200),
+    this.animationDuration = const Duration(milliseconds: 250),
   });
 
   /// 체크 상태
@@ -30,7 +32,7 @@ class DoodleCheckbox extends StatefulWidget {
   /// 체크마크 색상 (기본값: crayonRed)
   final Color? checkColor;
 
-  /// 박스 테두리 색상 (기본값: pencilLight)
+  /// 박스 테두리 색상 (기본값: pencilDark)
   final Color? boxColor;
 
   /// 애니메이션 시간
@@ -92,10 +94,10 @@ class _DoodleCheckboxState extends State<DoodleCheckbox>
         builder: (context, child) {
           return CustomPaint(
             size: Size(widget.size, widget.size),
-            painter: _DoodleCheckboxPainter(
+            painter: _HandDrawnCheckboxPainter(
               progress: _checkAnimation.value,
               checkColor: widget.checkColor ?? DoodleColors.crayonRed,
-              boxColor: widget.boxColor ?? DoodleColors.pencilLight,
+              circleColor: widget.boxColor ?? DoodleColors.pencilDark,
             ),
           );
         },
@@ -104,100 +106,149 @@ class _DoodleCheckboxState extends State<DoodleCheckbox>
   }
 }
 
-/// 체크박스 페인터
-class _DoodleCheckboxPainter extends CustomPainter {
-  _DoodleCheckboxPainter({
+/// 손그림 스타일 체크박스 페인터
+class _HandDrawnCheckboxPainter extends CustomPainter {
+  _HandDrawnCheckboxPainter({
     required this.progress,
     required this.checkColor,
-    required this.boxColor,
+    required this.circleColor,
   });
 
   final double progress;
   final Color checkColor;
-  final Color boxColor;
+  final Color circleColor;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final boxPaint = Paint()
-      ..color = boxColor
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.width / 2 - 3;
 
-    // 손그림 느낌의 약간 불규칙한 사각형
-    final boxPath = Path();
-    final margin = size.width * 0.1;
-    final boxSize = size.width - margin * 2;
-
-    // 약간 삐뚤게 그리기 위한 오프셋
-    const skew = 1.0;
-
-    boxPath.moveTo(margin + skew, margin);
-    boxPath.lineTo(margin + boxSize - skew, margin + skew);
-    boxPath.lineTo(margin + boxSize, margin + boxSize - skew);
-    boxPath.lineTo(margin + skew, margin + boxSize + skew);
-    boxPath.close();
-
-    canvas.drawPath(boxPath, boxPaint);
+    // 손그림 원 그리기 (약간 불규칙하게)
+    _drawHandDrawnCircle(canvas, center, radius);
 
     // 체크마크 그리기 (애니메이션)
     if (progress > 0) {
-      final checkPaint = Paint()
-        ..color = checkColor
-        ..strokeWidth = 3
-        ..style = PaintingStyle.stroke
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.round;
+      _drawHandDrawnCheck(canvas, size, progress);
+    }
+  }
 
-      final checkPath = Path();
+  /// 손으로 그린 듯한 불규칙한 원
+  void _drawHandDrawnCircle(Canvas canvas, Offset center, double radius) {
+    final paint = Paint()
+      ..color = circleColor
+      ..strokeWidth = 1.8
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
-      // 체크마크 시작점 (왼쪽 아래)
-      final startX = size.width * 0.2;
-      final startY = size.height * 0.5;
+    final path = Path();
 
-      // 중간점 (아래 꺾이는 점)
-      final midX = size.width * 0.4;
-      final midY = size.height * 0.7;
+    // 불규칙한 원을 그리기 위한 점들 생성
+    const segments = 12;
+    final random = math.Random(42); // 고정된 시드로 일관된 모양
 
-      // 끝점 (오른쪽 위)
-      final endX = size.width * 0.85;
-      final endY = size.height * 0.25;
+    for (var i = 0; i <= segments; i++) {
+      final angle = (i / segments) * 2 * math.pi - math.pi / 2;
 
-      // 진행도에 따라 체크마크 그리기
-      if (progress < 0.5) {
-        // 첫 번째 획 (왼쪽에서 중간까지)
-        final p = progress * 2;
-        checkPath.moveTo(startX, startY);
-        checkPath.lineTo(
-          startX + (midX - startX) * p,
-          startY + (midY - startY) * p,
-        );
+      // 약간의 불규칙성 추가
+      final wobble = (random.nextDouble() - 0.5) * radius * 0.15;
+      final r = radius + wobble;
+
+      final x = center.dx + r * math.cos(angle);
+      final y = center.dy + r * math.sin(angle);
+
+      if (i == 0) {
+        path.moveTo(x, y);
       } else {
-        // 첫 번째 획 완료
-        checkPath.moveTo(startX, startY);
-        checkPath.lineTo(midX, midY);
+        // 부드러운 곡선으로 연결
+        final prevAngle = ((i - 1) / segments) * 2 * math.pi - math.pi / 2;
+        final controlAngle = (prevAngle + angle) / 2;
+        final controlR = radius * 1.02;
 
-        // 두 번째 획 (중간에서 끝까지)
-        final p = (progress - 0.5) * 2;
-        checkPath.lineTo(
-          midX + (endX - midX) * p,
-          midY + (endY - midY) * p,
-        );
+        final cx = center.dx + controlR * math.cos(controlAngle);
+        final cy = center.dy + controlR * math.sin(controlAngle);
+
+        path.quadraticBezierTo(cx, cy, x, y);
       }
+    }
 
-      canvas.drawPath(checkPath, checkPaint);
+    canvas.drawPath(path, paint);
+  }
+
+  /// 손으로 그린 듯한 체크마크
+  void _drawHandDrawnCheck(Canvas canvas, Size size, double progress) {
+    final paint = Paint()
+      ..color = checkColor
+      ..strokeWidth = 2.5
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    // 체크마크 좌표 (휙 그은 느낌)
+    final startX = size.width * 0.22;
+    final startY = size.height * 0.52;
+
+    final midX = size.width * 0.42;
+    final midY = size.height * 0.72;
+
+    final endX = size.width * 0.82;
+    final endY = size.height * 0.28;
+
+    final path = Path();
+
+    // 진행도에 따라 체크마크 그리기
+    if (progress < 0.4) {
+      // 첫 번째 획 (왼쪽에서 중간까지)
+      final p = progress / 0.4;
+      path.moveTo(startX, startY);
+      path.lineTo(
+        startX + (midX - startX) * p,
+        startY + (midY - startY) * p,
+      );
+    } else {
+      // 첫 번째 획 완료
+      path.moveTo(startX, startY);
+      path.lineTo(midX, midY);
+
+      // 두 번째 획 (중간에서 끝까지) - 살짝 곡선으로
+      final p = (progress - 0.4) / 0.6;
+
+      // 곡선을 위한 컨트롤 포인트
+      final cpX = midX + (endX - midX) * 0.3;
+      final cpY = midY - size.height * 0.1;
+
+      final currentEndX = midX + (endX - midX) * p;
+      final currentEndY = midY + (endY - midY) * p;
+
+      // 진행 중일 때는 직선으로, 완료되면 약간 곡선
+      if (p < 1) {
+        path.lineTo(currentEndX, currentEndY);
+      } else {
+        path.quadraticBezierTo(cpX, cpY, endX, endY);
+      }
+    }
+
+    canvas.drawPath(path, paint);
+
+    // 완료 시 약간의 장식 효과 (체크 끝에 점)
+    if (progress >= 1.0) {
+      final dotPaint = Paint()
+        ..color = checkColor
+        ..style = PaintingStyle.fill;
+
+      canvas.drawCircle(Offset(endX, endY), 1.5, dotPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _DoodleCheckboxPainter oldDelegate) {
+  bool shouldRepaint(covariant _HandDrawnCheckboxPainter oldDelegate) {
     return progress != oldDelegate.progress ||
         checkColor != oldDelegate.checkColor ||
-        boxColor != oldDelegate.boxColor;
+        circleColor != oldDelegate.circleColor;
   }
 }
 
-/// 원형 Doodle 체크박스
+/// 원형 Doodle 체크박스 (채워지는 스타일)
 class DoodleCircleCheckbox extends StatefulWidget {
   const DoodleCircleCheckbox({
     super.key,
