@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'models/achievement.dart';
 import 'models/category.dart';
+import 'models/doodle.dart';
 import 'models/focus_session.dart';
 import 'models/plant.dart';
 import 'models/template.dart';
@@ -12,8 +13,8 @@ import 'models/todo.dart';
 import 'providers/achievement_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/focus_provider.dart';
-import 'providers/forest_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/sketchbook_provider.dart';
 import 'providers/template_provider.dart';
 import 'providers/todo_provider.dart';
 import 'screens/main_screen.dart';
@@ -42,6 +43,10 @@ void main() async {
   // Phase 4 모델 어댑터
   Hive.registerAdapter(AchievementAdapter());
   Hive.registerAdapter(AchievementTypeAdapter());
+  // 스케치북 모델 어댑터
+  Hive.registerAdapter(DoodleCategoryAdapter());
+  Hive.registerAdapter(DoodleTypeAdapter());
+  Hive.registerAdapter(DoodleAdapter());
   await Hive.openBox<Todo>('todos');
 
   final categoryProvider = CategoryProvider();
@@ -56,9 +61,9 @@ void main() async {
   await notificationService.requestPermission();
   notificationService.setSettingsProvider(settingsProvider);
 
-  // 숲 Provider 초기화
-  final forestProvider = ForestProvider();
-  await forestProvider.init();
+  // 스케치북 Provider 초기화
+  final sketchbookProvider = SketchbookProvider();
+  await sketchbookProvider.init();
 
   // 집중 모드 Provider 초기화
   final focusProvider = FocusProvider();
@@ -72,15 +77,15 @@ void main() async {
   final achievementProvider = AchievementProvider();
   await achievementProvider.init();
 
-  // 숲 성장 시 업적 체크 연결
-  forestProvider.onPlantFullyGrown = (totalPlantsGrown) {
-    achievementProvider.onPlantGrown(totalPlantsGrown: totalPlantsGrown);
+  // 낙서 완성 시 업적 체크 연결
+  sketchbookProvider.onDoodleCompleted = (totalDoodlesCompleted) {
+    achievementProvider.onDoodleCompleted(totalDoodlesCompleted: totalDoodlesCompleted);
   };
 
   runApp(MyApp(
     categoryProvider: categoryProvider,
     settingsProvider: settingsProvider,
-    forestProvider: forestProvider,
+    sketchbookProvider: sketchbookProvider,
     focusProvider: focusProvider,
     templateProvider: templateProvider,
     achievementProvider: achievementProvider,
@@ -92,7 +97,7 @@ class MyApp extends StatelessWidget {
     super.key,
     required this.categoryProvider,
     required this.settingsProvider,
-    required this.forestProvider,
+    required this.sketchbookProvider,
     required this.focusProvider,
     required this.templateProvider,
     required this.achievementProvider,
@@ -100,7 +105,7 @@ class MyApp extends StatelessWidget {
 
   final CategoryProvider categoryProvider;
   final SettingsProvider settingsProvider;
-  final ForestProvider forestProvider;
+  final SketchbookProvider sketchbookProvider;
   final FocusProvider focusProvider;
   final TemplateProvider templateProvider;
   final AchievementProvider achievementProvider;
@@ -112,7 +117,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) {
           final todoProvider = TodoProvider();
           todoProvider.setSettingsProvider(settingsProvider);
-          todoProvider.setForestProvider(forestProvider);
+          todoProvider.setSketchbookProvider(sketchbookProvider);
           todoProvider.setAchievementProvider(achievementProvider);
 
           // 포모도로 세션 완료 시 할일의 실제 시간 업데이트 및 업적 체크
@@ -130,7 +135,7 @@ class MyApp extends StatelessWidget {
         }),
         ChangeNotifierProvider.value(value: categoryProvider),
         ChangeNotifierProvider.value(value: settingsProvider),
-        ChangeNotifierProvider.value(value: forestProvider),
+        ChangeNotifierProvider.value(value: sketchbookProvider),
         ChangeNotifierProvider.value(value: focusProvider),
         ChangeNotifierProvider.value(value: templateProvider),
         ChangeNotifierProvider.value(value: achievementProvider),

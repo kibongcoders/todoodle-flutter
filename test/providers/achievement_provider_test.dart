@@ -288,23 +288,23 @@ void main() {
       });
     });
 
-    group('onPlantGrown', () {
-      test('첫 식물 성장 시 plantGrown 업적 해제', () async {
-        await provider.onPlantGrown(totalPlantsGrown: 1);
+    group('onDoodleCompleted', () {
+      test('첫 낙서 완성 시 plantGrown 업적 해제', () async {
+        await provider.onDoodleCompleted(totalDoodlesCompleted: 1);
 
         final achievement = provider.getAchievement(AchievementType.plantGrown);
         expect(achievement!.isUnlocked, true);
       });
 
-      test('10개 식물 성장 시 forest10 업적 해제', () async {
-        await provider.onPlantGrown(totalPlantsGrown: 10);
+      test('10개 낙서 완성 시 forest10 업적 해제', () async {
+        await provider.onDoodleCompleted(totalDoodlesCompleted: 10);
 
         final achievement = provider.getAchievement(AchievementType.forest10);
         expect(achievement!.isUnlocked, true);
       });
 
-      test('5개 식물 성장 시 forest10 업적 미해제', () async {
-        await provider.onPlantGrown(totalPlantsGrown: 5);
+      test('5개 낙서 완성 시 forest10 업적 미해제', () async {
+        await provider.onDoodleCompleted(totalDoodlesCompleted: 5);
 
         final achievement = provider.getAchievement(AchievementType.forest10);
         expect(achievement!.isUnlocked, false);

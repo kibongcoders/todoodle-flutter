@@ -8,13 +8,14 @@ import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
-import '../providers/forest_provider.dart';
+import '../providers/sketchbook_provider.dart';
 import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
 import '../services/speech_service.dart';
 import '../shared/widgets/doodle_background.dart';
 import '../widgets/todo_list_item.dart';
 import 'category_screen.dart';
+import 'sketchbook_screen.dart';
 import 'template_screen.dart';
 import 'todo_form_screen.dart';
 
@@ -741,8 +742,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTodaySummary(TodoProvider todoProvider) {
     final incompleteCount = todoProvider.getTodayIncompleteCount();
     final estimatedMinutes = todoProvider.getTodayTotalEstimatedMinutes();
-    final forestProvider = context.watch<ForestProvider>();
-    final currentStreak = forestProvider.currentStreak;
+    final sketchbookProvider = context.watch<SketchbookProvider>();
+    final currentStreak = sketchbookProvider.currentStreak;
 
     // 아무 정보도 없으면 표시하지 않음
     if (estimatedMinutes == 0 && incompleteCount == 0 && currentStreak == 0) {
@@ -797,32 +798,38 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          // 스트릭 표시
+          // 스트릭 표시 (탭하면 스케치북으로 이동)
           if (currentStreak > 0) ...[
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: DoodleColors.crayonOrange.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(4),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SketchbookScreen()),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('🔥', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 4),
-                  Text(
-                    '$currentStreak일',
-                    style: DoodleTypography.badge.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: DoodleColors.crayonOrange,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: DoodleColors.crayonOrange.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔥', style: TextStyle(fontSize: 14)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$currentStreak일',
+                      style: DoodleTypography.badge.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: DoodleColors.crayonOrange,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             const SizedBox(width: 8),
           ],
-          if (estimatedMinutes > 0)
+          if (estimatedMinutes > 0) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
@@ -847,6 +854,23 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+            const SizedBox(width: 8),
+          ],
+          // 스케치북 버튼
+          GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SketchbookScreen()),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: DoodleColors.highlightYellow.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: const Text('📓', style: TextStyle(fontSize: 16)),
+            ),
+          ),
         ],
       ),
     );

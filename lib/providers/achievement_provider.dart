@@ -89,15 +89,15 @@ class AchievementProvider extends ChangeNotifier {
     }
   }
 
-  /// 식물 성장 완료 시 호출
-  Future<void> onPlantGrown({required int totalPlantsGrown}) async {
-    // 첫 식물
-    if (totalPlantsGrown >= 1) {
+  /// 낙서 완성 시 호출
+  Future<void> onDoodleCompleted({required int totalDoodlesCompleted}) async {
+    // 첫 낙서
+    if (totalDoodlesCompleted >= 1) {
       await _unlockAchievement(AchievementType.plantGrown);
     }
 
-    // 10개 식물
-    if (totalPlantsGrown >= 10) {
+    // 10개 낙서
+    if (totalDoodlesCompleted >= 10) {
       await _unlockAchievement(AchievementType.forest10);
     }
   }

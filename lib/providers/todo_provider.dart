@@ -5,8 +5,8 @@ import 'package:uuid/uuid.dart';
 import '../models/todo.dart';
 import '../services/notification_service.dart';
 import 'achievement_provider.dart';
-import 'forest_provider.dart';
 import 'settings_provider.dart';
+import 'sketchbook_provider.dart';
 
 enum DateFilter {
   all,      // 전체
@@ -20,7 +20,7 @@ class TodoProvider extends ChangeNotifier {
   final _notificationService = NotificationService();
 
   SettingsProvider? _settingsProvider;
-  ForestProvider? _forestProvider;
+  SketchbookProvider? _sketchbookProvider;
   AchievementProvider? _achievementProvider;
 
   void setSettingsProvider(SettingsProvider provider) {
@@ -28,8 +28,8 @@ class TodoProvider extends ChangeNotifier {
     _setupNotificationCallbacks();
   }
 
-  void setForestProvider(ForestProvider provider) {
-    _forestProvider = provider;
+  void setSketchbookProvider(SketchbookProvider provider) {
+    _sketchbookProvider = provider;
   }
 
   void setAchievementProvider(AchievementProvider provider) {
@@ -405,9 +405,9 @@ class TodoProvider extends ChangeNotifier {
         todo.completionHistory = history;
       }
 
-      // 완료 상태로 변경될 때 식물 성장 및 업적 체크
+      // 완료 상태로 변경될 때 낙서 획 추가 및 업적 체크
       if (!wasCompleted && todo.isCompleted) {
-        _forestProvider?.growPlant();
+        _sketchbookProvider?.drawStroke();
         _checkAchievements();
       }
 
@@ -745,13 +745,13 @@ class TodoProvider extends ChangeNotifier {
 
   /// 업적 체크 (할일 완료 시 호출)
   void _checkAchievements() {
-    if (_achievementProvider == null || _forestProvider == null) return;
+    if (_achievementProvider == null || _sketchbookProvider == null) return;
 
     final totalCompleted = _box.values
         .where((t) => t.isCompleted && !t.isArchived && t.deletedAt == null)
         .length;
 
-    final currentStreak = _forestProvider!.currentStreak;
+    final currentStreak = _sketchbookProvider!.currentStreak;
 
     // 오늘 할일 전체 완료 여부 체크
     final now = DateTime.now();

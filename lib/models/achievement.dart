@@ -31,12 +31,12 @@ enum AchievementType {
   @HiveField(7)
   streak30, // 30일 연속
 
-  // 숲 성장
+  // 스케치북 (기존 필드 호환 유지)
   @HiveField(8)
-  plantGrown, // 첫 식물 성장
+  plantGrown, // 첫 낙서 완성 (기존: 첫 식물 성장)
 
   @HiveField(9)
-  forest10, // 숲에 식물 10개
+  forest10, // 10개 낙서 완성 (기존: 숲에 식물 10개)
 
   // 집중 모드
   @HiveField(10)
@@ -165,19 +165,19 @@ class AchievementMeta {
       target: 30,
     ),
 
-    // 숲 성장
+    // 스케치북
     AchievementType.plantGrown: AchievementMeta(
       type: AchievementType.plantGrown,
-      name: '첫 수확',
-      description: '첫 번째 식물을 다 키웠습니다',
-      icon: '🌱',
+      name: '첫 작품',
+      description: '첫 번째 낙서를 완성했습니다',
+      icon: '✏️',
       target: 1,
     ),
     AchievementType.forest10: AchievementMeta(
       type: AchievementType.forest10,
-      name: '작은 숲',
-      description: '숲에 10개의 식물을 키웠습니다',
-      icon: '🌳',
+      name: '스케치북',
+      description: '10개의 낙서를 완성했습니다',
+      icon: '📓',
       target: 10,
     ),
 
