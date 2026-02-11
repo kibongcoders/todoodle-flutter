@@ -641,7 +641,7 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
 
 /// 스탬프/도장 스타일 뱃지 (반복 설정용)
 ///
-/// 잉크가 번진 듯한 테두리, 도장 찍은 느낌입니다.
+/// 잉크가 번진 듯한 테두리, 빈티지 도장 느낌입니다.
 class _StampBadge extends StatelessWidget {
   const _StampBadge({
     this.emoji,
@@ -661,25 +661,49 @@ class _StampBadge extends StatelessWidget {
         ? DoodleColors.pencilLight
         : (color ?? DoodleColors.crayonPurple);
 
-    final bgColor = isCompleted
-        ? Colors.transparent
-        : displayColor.withValues(alpha: 0.12);
-
-    final borderColor = isCompleted
-        ? DoodleColors.pencilLight.withValues(alpha: 0.3)
-        : displayColor.withValues(alpha: 0.7);
-
     return Transform.rotate(
-      angle: isCompleted ? 0 : -0.025, // 도장 찍을 때 약간 기울어진 느낌
+      angle: isCompleted ? 0 : -0.03, // 도장 찍을 때 기울어진 느낌
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(2), // 거의 각진 모서리
+          // 잉크가 스며든 듯한 그라데이션 배경
+          gradient: isCompleted
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    displayColor.withValues(alpha: 0.18),
+                    displayColor.withValues(alpha: 0.08),
+                    displayColor.withValues(alpha: 0.15),
+                  ],
+                  stops: const [0.0, 0.5, 1.0],
+                ),
+          color: isCompleted ? Colors.transparent : null,
+          borderRadius: BorderRadius.circular(2),
+          // 이중 테두리로 도장 잉크 번짐 표현
           border: Border.all(
-            color: borderColor,
-            width: isCompleted ? 1 : 1.5, // 도장 잉크 느낌
+            color: isCompleted
+                ? DoodleColors.pencilLight.withValues(alpha: 0.3)
+                : displayColor.withValues(alpha: 0.75),
+            width: isCompleted ? 1 : 2,
           ),
+          // 도장 눌린 깊이감
+          boxShadow: isCompleted
+              ? null
+              : [
+                  BoxShadow(
+                    color: displayColor.withValues(alpha: 0.2),
+                    blurRadius: 0,
+                    spreadRadius: 0.5,
+                    offset: const Offset(0.5, 0.5),
+                  ),
+                  BoxShadow(
+                    color: displayColor.withValues(alpha: 0.1),
+                    blurRadius: 2,
+                    offset: const Offset(1, 1),
+                  ),
+                ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -687,17 +711,17 @@ class _StampBadge extends StatelessWidget {
             if (emoji != null)
               Text(
                 emoji!,
-                style: TextStyle(fontSize: isCompleted ? 8 : 9, height: 1.1),
+                style: TextStyle(fontSize: isCompleted ? 8 : 10, height: 1.1),
               ),
-            if (emoji != null && text != null) const SizedBox(width: 2),
+            if (emoji != null && text != null) const SizedBox(width: 3),
             if (text != null)
               Text(
                 text!,
                 style: DoodleTypography.badge.copyWith(
                   color: displayColor,
-                  fontSize: isCompleted ? 8 : 9,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5, // 도장 글씨 느낌
+                  fontSize: isCompleted ? 8 : 10,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 0.8, // 도장 글씨 느낌
                   decoration: isCompleted ? TextDecoration.lineThrough : null,
                   decorationColor: isCompleted ? DoodleColors.pencilLight : null,
                 ),
@@ -711,7 +735,7 @@ class _StampBadge extends StatelessWidget {
 
 /// 마스킹 테이프 스타일 뱃지 (카테고리용)
 ///
-/// 반투명 테이프, 찢어진 가장자리 느낌입니다.
+/// 반투명 테이프, 대각선 줄무늬 패턴 느낌입니다.
 class _TapeBadge extends StatelessWidget {
   const _TapeBadge({
     this.emoji,
@@ -725,31 +749,60 @@ class _TapeBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = isCompleted
-        ? DoodleColors.paperGrid.withValues(alpha: 0.3)
-        : (color ?? DoodleColors.highlightYellow).withValues(alpha: 0.5);
+    final baseColor = color ?? DoodleColors.highlightYellow;
 
     return Transform.rotate(
-      angle: isCompleted ? 0 : 0.02, // 살짝 비스듬하게 붙인 느낌
+      angle: isCompleted ? 0 : 0.025, // 살짝 비스듬하게 붙인 느낌
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
-          color: bgColor,
+          // 줄무늬 패턴을 그라데이션으로 표현
+          gradient: isCompleted
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    baseColor.withValues(alpha: 0.55),
+                    baseColor.withValues(alpha: 0.35),
+                    baseColor.withValues(alpha: 0.55),
+                    baseColor.withValues(alpha: 0.35),
+                    baseColor.withValues(alpha: 0.55),
+                  ],
+                  stops: const [0.0, 0.25, 0.5, 0.75, 1.0],
+                ),
+          color: isCompleted
+              ? DoodleColors.paperGrid.withValues(alpha: 0.3)
+              : null,
           // 불규칙한 모서리 - 찢어진 테이프 느낌
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(1),
-            topRight: Radius.circular(3),
-            bottomLeft: Radius.circular(2),
+            topRight: Radius.circular(4),
+            bottomLeft: Radius.circular(3),
             bottomRight: Radius.circular(1),
           ),
-          // 테이프 두께감
+          // 테이프 반투명 가장자리
+          border: isCompleted
+              ? null
+              : Border.all(
+                  color: baseColor.withValues(alpha: 0.15),
+                  width: 0.5,
+                ),
+          // 테이프 두께감 + 붙인 느낌
           boxShadow: isCompleted
               ? null
               : [
+                  // 테이프 아래 그림자
                   BoxShadow(
-                    color: DoodleColors.paperShadow.withValues(alpha: 0.1),
-                    blurRadius: 1,
-                    offset: const Offset(0.5, 0.5),
+                    color: DoodleColors.paperShadow.withValues(alpha: 0.12),
+                    blurRadius: 2,
+                    offset: const Offset(1, 1),
+                  ),
+                  // 테이프 살짝 들린 효과
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    blurRadius: 0,
+                    offset: const Offset(-0.5, -0.5),
                   ),
                 ],
         ),
@@ -757,7 +810,7 @@ class _TapeBadge extends StatelessWidget {
             ? Text(
                 emoji!,
                 style: TextStyle(
-                  fontSize: isCompleted ? 10 : 12,
+                  fontSize: isCompleted ? 10 : 13,
                   height: 1.0,
                 ),
               )
@@ -769,7 +822,7 @@ class _TapeBadge extends StatelessWidget {
 
 /// 손그림 동그라미 스타일 뱃지 (D-Day용)
 ///
-/// 연필로 동그라미 친 불규칙한 원형 느낌입니다.
+/// 연필로 힘주어 동그라미 친 느낌입니다.
 class _CircleBadge extends StatelessWidget {
   const _CircleBadge({
     this.text,
@@ -787,47 +840,71 @@ class _CircleBadge extends StatelessWidget {
         ? DoodleColors.pencilLight
         : (color ?? DoodleColors.crayonRed);
 
-    final borderColor = isCompleted
-        ? DoodleColors.pencilLight.withValues(alpha: 0.4)
-        : displayColor.withValues(alpha: 0.8);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-      decoration: BoxDecoration(
-        color: isCompleted
-            ? Colors.transparent
-            : displayColor.withValues(alpha: 0.08),
-        // 불규칙한 타원형 - 손으로 그린 동그라미 느낌
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(12),
-          topRight: Radius.circular(10),
-          bottomLeft: Radius.circular(11),
-          bottomRight: Radius.circular(13),
+    return Transform.rotate(
+      angle: isCompleted ? 0 : 0.02, // 손으로 그릴 때 자연스러운 기울기
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          // 연필 자국이 살짝 남은 듯한 배경
+          gradient: isCompleted
+              ? null
+              : RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.2,
+                  colors: [
+                    displayColor.withValues(alpha: 0.12),
+                    displayColor.withValues(alpha: 0.05),
+                    Colors.transparent,
+                  ],
+                  stops: const [0.0, 0.7, 1.0],
+                ),
+          color: isCompleted ? Colors.transparent : null,
+          // 더 불규칙한 타원형 - 손으로 그린 동그라미 느낌
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(14),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(16),
+          ),
+          // 이중 테두리로 연필 힘주어 그린 느낌
+          border: Border.all(
+            color: isCompleted
+                ? DoodleColors.pencilLight.withValues(alpha: 0.4)
+                : displayColor.withValues(alpha: 0.85),
+            width: isCompleted ? 1 : 2,
+          ),
+          // 연필 자국 그림자
+          boxShadow: isCompleted
+              ? null
+              : [
+                  // 외곽 번짐
+                  BoxShadow(
+                    color: displayColor.withValues(alpha: 0.15),
+                    blurRadius: 1,
+                    spreadRadius: 0.5,
+                  ),
+                ],
         ),
-        border: Border.all(
-          color: borderColor,
-          width: isCompleted ? 1 : 1.5,
-        ),
+        child: text != null
+            ? Text(
+                text!,
+                style: DoodleTypography.badge.copyWith(
+                  color: displayColor,
+                  fontSize: isCompleted ? 9 : 11,
+                  fontWeight: FontWeight.w800,
+                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                  decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+                ),
+              )
+            : const SizedBox.shrink(),
       ),
-      child: text != null
-          ? Text(
-              text!,
-              style: DoodleTypography.badge.copyWith(
-                color: displayColor,
-                fontSize: isCompleted ? 9 : 10,
-                fontWeight: FontWeight.w700,
-                decoration: isCompleted ? TextDecoration.lineThrough : null,
-                decorationColor: isCompleted ? DoodleColors.pencilLight : null,
-              ),
-            )
-          : const SizedBox.shrink(),
     );
   }
 }
 
 /// 형광펜 스타일 뱃지 (예상시간용)
 ///
-/// 테두리 없이 형광펜으로 칠한 느낌입니다.
+/// 형광펜으로 힘주어 칠한 느낌입니다.
 class _HighlightBadge extends StatelessWidget {
   const _HighlightBadge({
     this.emoji,
@@ -847,46 +924,73 @@ class _HighlightBadge extends StatelessWidget {
         ? DoodleColors.pencilLight
         : (color ?? DoodleColors.inkBlue);
 
-    final bgColor = isCompleted
-        ? Colors.transparent
-        : (color ?? DoodleColors.highlightBlue).withValues(alpha: 0.4);
+    final highlightColor = color ?? DoodleColors.highlightBlue;
 
-    return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: emoji != null ? 4 : 6,
-        vertical: 2,
-      ),
-      decoration: BoxDecoration(
-        color: bgColor,
-        // 형광펜 번짐 효과
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(2),
-          topRight: Radius.circular(4),
-          bottomLeft: Radius.circular(3),
-          bottomRight: Radius.circular(2),
+    return Transform.rotate(
+      angle: isCompleted ? 0 : -0.015, // 형광펜 칠할 때 자연스러운 각도
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: emoji != null ? 5 : 7,
+          vertical: 3,
         ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (emoji != null)
-            Text(
-              emoji!,
-              style: TextStyle(fontSize: isCompleted ? 9 : 10, height: 1.1),
-            ),
-          if (emoji != null && text != null) const SizedBox(width: 2),
-          if (text != null)
-            Text(
-              text!,
-              style: DoodleTypography.badge.copyWith(
-                color: displayColor,
-                fontSize: isCompleted ? 9 : 10,
-                fontWeight: isCompleted ? FontWeight.w400 : FontWeight.w700,
-                decoration: isCompleted ? TextDecoration.lineThrough : null,
-                decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+        decoration: BoxDecoration(
+          // 형광펜 불규칙한 번짐 효과
+          gradient: isCompleted
+              ? null
+              : LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    highlightColor.withValues(alpha: 0.3),
+                    highlightColor.withValues(alpha: 0.5),
+                    highlightColor.withValues(alpha: 0.45),
+                    highlightColor.withValues(alpha: 0.55),
+                    highlightColor.withValues(alpha: 0.35),
+                  ],
+                  stops: const [0.0, 0.2, 0.5, 0.8, 1.0],
+                ),
+          color: isCompleted ? Colors.transparent : null,
+          // 형광펜 번짐 모서리
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(2),
+            topRight: Radius.circular(5),
+            bottomLeft: Radius.circular(4),
+            bottomRight: Radius.circular(2),
+          ),
+          // 형광펜 잉크 번짐 효과
+          boxShadow: isCompleted
+              ? null
+              : [
+                  BoxShadow(
+                    color: highlightColor.withValues(alpha: 0.2),
+                    blurRadius: 3,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (emoji != null)
+              Text(
+                emoji!,
+                style: TextStyle(fontSize: isCompleted ? 9 : 11, height: 1.1),
               ),
-            ),
-        ],
+            if (emoji != null && text != null) const SizedBox(width: 3),
+            if (text != null)
+              Text(
+                text!,
+                style: DoodleTypography.badge.copyWith(
+                  color: displayColor,
+                  fontSize: isCompleted ? 9 : 11,
+                  fontWeight: isCompleted ? FontWeight.w400 : FontWeight.w700,
+                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                  decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -894,7 +998,7 @@ class _HighlightBadge extends StatelessWidget {
 
 /// 라벨 스티커 스타일 뱃지 (마감일용)
 ///
-/// 라벨 메이커로 찍은 깔끔한 라벨 느낌입니다.
+/// 라벨 메이커로 찍은 입체감 있는 라벨 느낌입니다.
 class _LabelBadge extends StatelessWidget {
   const _LabelBadge({
     this.emoji,
@@ -913,26 +1017,53 @@ class _LabelBadge extends StatelessWidget {
         : DoodleColors.pencilDark;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
+        // 라벨 종이 질감 그라데이션
+        gradient: isCompleted
+            ? null
+            : const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  DoodleColors.paperWhite,
+                  DoodleColors.paperCream,
+                ],
+              ),
         color: isCompleted
             ? DoodleColors.paperGrid.withValues(alpha: 0.3)
-            : DoodleColors.paperWhite,
+            : null,
         borderRadius: BorderRadius.circular(4),
+        // 라벨 테두리 (살짝 엠보싱 느낌)
         border: Border.all(
           color: isCompleted
               ? DoodleColors.pencilLight.withValues(alpha: 0.3)
-              : DoodleColors.pencilLight.withValues(alpha: 0.6),
+              : DoodleColors.pencilLight.withValues(alpha: 0.5),
           width: 1,
         ),
-        // 라벨 스티커 두께감
+        // 라벨 스티커 입체감
         boxShadow: isCompleted
             ? null
             : [
+                // 주 그림자
                 BoxShadow(
-                  color: DoodleColors.paperShadow.withValues(alpha: 0.15),
-                  blurRadius: 1,
-                  offset: const Offset(0.5, 0.5),
+                  color: DoodleColors.paperShadow.withValues(alpha: 0.2),
+                  blurRadius: 2,
+                  offset: const Offset(1, 1),
+                ),
+                // 상단 하이라이트
+                const BoxShadow(
+                  color: Colors.white,
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: Offset(-0.5, -0.5),
+                ),
+                // 아래쪽 두께감
+                BoxShadow(
+                  color: DoodleColors.pencilLight.withValues(alpha: 0.15),
+                  blurRadius: 0,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 1),
                 ),
               ],
       ),
@@ -942,16 +1073,17 @@ class _LabelBadge extends StatelessWidget {
           if (emoji != null)
             Text(
               emoji!,
-              style: TextStyle(fontSize: isCompleted ? 9 : 10, height: 1.1),
+              style: TextStyle(fontSize: isCompleted ? 9 : 11, height: 1.1),
             ),
-          if (emoji != null && text != null) const SizedBox(width: 3),
+          if (emoji != null && text != null) const SizedBox(width: 4),
           if (text != null)
             Text(
               text!,
               style: DoodleTypography.badge.copyWith(
                 color: displayColor,
-                fontSize: isCompleted ? 9 : 10,
-                fontWeight: FontWeight.w500,
+                fontSize: isCompleted ? 9 : 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.3,
                 decoration: isCompleted ? TextDecoration.lineThrough : null,
                 decorationColor: isCompleted ? DoodleColors.pencilLight : null,
               ),
