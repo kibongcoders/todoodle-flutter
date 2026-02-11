@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/constants/doodle_colors.dart';
+import '../core/constants/doodle_typography.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../widgets/doodle_chip.dart';
 
 class TodoFormScreen extends StatefulWidget {
   const TodoFormScreen({
@@ -608,12 +610,18 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
             const SizedBox(height: 12),
             // 알림 설정
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: _notificationEnabled
-                    ? const Color(0xFFA8E6CF).withValues(alpha: 0.2)
-                    : Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
+                    ? DoodleColors.highlightYellow.withValues(alpha: 0.3)
+                    : DoodleColors.paperCream,
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: _notificationEnabled
+                      ? DoodleColors.pencilDark.withValues(alpha: 0.3)
+                      : DoodleColors.paperGrid,
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
@@ -625,9 +633,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                   Expanded(
                     child: Text(
                       '마감 시간에 알림',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: _notificationEnabled ? const Color(0xFF2E7D32) : Colors.grey[500],
+                      style: DoodleTypography.bodyMedium.copyWith(
+                        color: _notificationEnabled ? DoodleColors.pencilDark : DoodleColors.pencilLight,
                         fontWeight: _notificationEnabled ? FontWeight.w500 : FontWeight.normal,
                       ),
                     ),
@@ -635,8 +642,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                   Switch(
                     value: _notificationEnabled,
                     onChanged: (value) => setState(() => _notificationEnabled = value),
-                    activeThumbColor: const Color(0xFF2E7D32),
-                    activeTrackColor: const Color(0xFFA8E6CF),
+                    activeThumbColor: DoodleColors.primary,
+                    activeTrackColor: DoodleColors.primaryLight,
                   ),
                 ],
               ),
@@ -647,9 +654,9 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!),
+                  color: DoodleColors.paperCream,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: DoodleColors.paperGrid),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,10 +667,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                         const SizedBox(width: 8),
                         Text(
                           '사전 알림',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey[700],
+                          style: DoodleTypography.labelMedium.copyWith(
+                            color: DoodleColors.pencilDark,
                           ),
                         ),
                       ],
@@ -740,24 +745,25 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
       _buildSectionCard(
         emoji: '⚡',
         title: '얼마나 급한가요?',
-        child: Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: Priority.values.map((priority) {
-            final isSelected = _priority == priority;
-            return ChoiceChip(
-              label: Text(_priorityLabel(priority)),
-              selected: isSelected,
-              onSelected: (_) => setState(() => _priority = priority),
-              showCheckmark: false,
-              selectedColor: const Color(0xFFA8E6CF),
-              backgroundColor: Colors.grey[100],
-              labelStyle: TextStyle(
-                color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[700],
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-            );
-          }).toList(),
+        child: DoodleChipGroup<Priority>(
+          items: Priority.values,
+          selectedItem: _priority,
+          labelBuilder: _priorityLabel,
+          onSelected: (priority) => setState(() => _priority = priority),
+          colorBuilder: (priority) {
+            switch (priority) {
+              case Priority.veryHigh:
+                return DoodleColors.highlightPink;
+              case Priority.high:
+                return DoodleColors.highlightOrange;
+              case Priority.medium:
+                return DoodleColors.highlightYellow;
+              case Priority.low:
+                return DoodleColors.highlightGreen;
+              case Priority.veryLow:
+                return DoodleColors.highlightBlue;
+            }
+          },
         ),
       ),
       const SizedBox(height: 16),
@@ -805,44 +811,30 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                     // 카테고리 칩들
                     ...categories.map((category) {
                       final isSelected = _categoryIds.contains(category.id);
-                      return FilterChip(
-                        label: Text('${category.emoji} ${category.name}'),
-                        selected: isSelected,
-                        onSelected: _inheritedFromParent
-                            ? null // 부모 상속 시 선택 불가
-                            : (selected) {
+                      return DoodleChip(
+                        label: '${category.emoji} ${category.name}',
+                        isSelected: isSelected,
+                        selectedColor: DoodleColors.highlightYellow,
+                        enabled: !_inheritedFromParent,
+                        onTap: _inheritedFromParent
+                            ? null
+                            : () {
                                 setState(() {
-                                  if (selected) {
-                                    _categoryIds.add(category.id);
-                                  } else {
+                                  if (isSelected) {
                                     _categoryIds.remove(category.id);
+                                  } else {
+                                    _categoryIds.add(category.id);
                                   }
                                 });
                               },
-                        showCheckmark: true,
-                        checkmarkColor: const Color(0xFF2E7D32),
-                        selectedColor: const Color(0xFFA8E6CF),
-                        backgroundColor: _inheritedFromParent
-                            ? Colors.grey[200]
-                            : Colors.grey[100],
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? const Color(0xFF2E7D32)
-                              : (_inheritedFromParent ? Colors.grey[500] : Colors.grey[700]),
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                        ),
                       );
                     }),
                     // 카테고리 추가 버튼
                     if (!_inheritedFromParent)
-                      ActionChip(
-                        label: const Text('+ 추가'),
-                        onPressed: () => _showAddCategoryDialog(categoryProvider),
-                        backgroundColor: Colors.grey[100],
-                        labelStyle: TextStyle(
-                          color: Colors.grey[600],
-                          fontWeight: FontWeight.w500,
-                        ),
+                      DoodleChip(
+                        label: '+ 추가',
+                        isSelected: false,
+                        onTap: () => _showAddCategoryDialog(categoryProvider),
                       ),
                   ],
                 ),
@@ -903,10 +895,11 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
 
   Widget _buildRecurrenceChip(Recurrence recurrence, String label) {
     final isSelected = _recurrence == recurrence;
-    return ChoiceChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (_) {
+    return DoodleChip(
+      label: label,
+      isSelected: isSelected,
+      selectedColor: DoodleColors.highlightGreen,
+      onTap: () {
         setState(() {
           _recurrence = recurrence;
           if (recurrence != Recurrence.custom) {
@@ -914,66 +907,44 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
           }
         });
       },
-      showCheckmark: false,
-      selectedColor: const Color(0xFFA8E6CF),
-      backgroundColor: Colors.grey[100],
-      labelStyle: TextStyle(
-        color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[700],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
     );
   }
 
   Widget _buildDayChip(int day, String label) {
     final isSelected = _recurrenceDays.contains(day);
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
+    return DoodleChip(
+      label: label,
+      isSelected: isSelected,
+      selectedColor: DoodleColors.highlightBlue,
+      onTap: () {
         setState(() {
-          if (selected) {
+          if (isSelected) {
+            _recurrenceDays.remove(day);
+          } else {
             _recurrenceDays.add(day);
             _recurrenceDays.sort();
-          } else {
-            _recurrenceDays.remove(day);
           }
         });
       },
-      showCheckmark: true,
-      checkmarkColor: const Color(0xFF2E7D32),
-      selectedColor: const Color(0xFFA8E6CF),
-      backgroundColor: Colors.grey[100],
-      labelStyle: TextStyle(
-        color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[700],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
     );
   }
 
   Widget _buildReminderChip(int minutes, String label) {
     final isSelected = _reminderOffsets.contains(minutes);
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) {
+    return DoodleChip(
+      label: label,
+      isSelected: isSelected,
+      selectedColor: DoodleColors.highlightOrange,
+      onTap: () {
         setState(() {
-          if (selected) {
+          if (isSelected) {
+            _reminderOffsets.remove(minutes);
+          } else {
             _reminderOffsets.add(minutes);
             _reminderOffsets.sort();
-          } else {
-            _reminderOffsets.remove(minutes);
           }
         });
       },
-      showCheckmark: true,
-      checkmarkColor: const Color(0xFF2E7D32),
-      selectedColor: const Color(0xFFA8E6CF),
-      backgroundColor: Colors.white,
-      labelStyle: TextStyle(
-        fontSize: 13,
-        color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[600],
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-      ),
     );
   }
 
@@ -1032,31 +1003,40 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFFA8E6CF).withValues(alpha: 0.2)
-              : Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
+              ? DoodleColors.highlightYellow.withValues(alpha: 0.3)
+              : DoodleColors.paperCream,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected
+                ? DoodleColors.pencilDark.withValues(alpha: 0.3)
+                : DoodleColors.paperGrid,
+            width: 1,
+          ),
         ),
         child: Row(
           children: [
             Text(emoji, style: const TextStyle(fontSize: 20)),
             const SizedBox(width: 12),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: 15,
-                color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[500],
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+            Expanded(
+              child: Text(
+                text,
+                style: DoodleTypography.bodyMedium.copyWith(
+                  color: isSelected ? DoodleColors.pencilDark : DoodleColors.pencilLight,
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                ),
               ),
             ),
-            const Spacer(),
-            Icon(Icons.chevron_right_rounded, color: Colors.grey[400]),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: DoodleColors.pencilLight,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -1071,20 +1051,19 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          color: DoodleColors.paperWhite,
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
-            color: const Color(0xFFA8E6CF),
+            color: DoodleColors.primaryLight,
             width: 1.5,
-            strokeAlign: BorderSide.strokeAlignInside,
           ),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
-              color: const Color(0xFFA8E6CF).withValues(alpha: 0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
+              color: DoodleColors.paperShadow,
+              blurRadius: 4,
+              offset: Offset(1, 2),
             ),
           ],
         ),
@@ -1094,9 +1073,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
             const SizedBox(width: 12),
             Text(
               label,
-              style: TextStyle(
-                fontSize: 15,
-                color: Colors.grey[600],
+              style: DoodleTypography.bodyMedium.copyWith(
+                color: DoodleColors.pencilLight,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1104,12 +1082,12 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
             Container(
               padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(8),
+                color: DoodleColors.primaryLight.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(4),
               ),
               child: const Icon(
                 Icons.add_rounded,
-                color: Color(0xFF2E7D32),
+                color: DoodleColors.primary,
                 size: 20,
               ),
             ),
@@ -1128,13 +1106,17 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
+        color: DoodleColors.paperWhite,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: DoodleColors.paperGrid,
+          width: 1,
+        ),
+        boxShadow: const [
           BoxShadow(
-            color: const Color(0xFFA8E6CF).withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: DoodleColors.paperShadow,
+            blurRadius: 4,
+            offset: Offset(1, 2),
           ),
         ],
       ),
@@ -1148,10 +1130,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF2E7D32),
+                  style: DoodleTypography.labelMedium.copyWith(
+                    color: DoodleColors.pencilDark,
                   ),
                 ),
               ),
@@ -1161,12 +1141,12 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                   child: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(8),
+                      color: DoodleColors.paperCream,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.close_rounded,
-                      color: Colors.grey[500],
+                      color: DoodleColors.pencilLight,
                       size: 18,
                     ),
                   ),
@@ -1197,38 +1177,16 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
               _buildTimeChip(60, '1시간'),
               _buildTimeChip(120, '2시간'),
               // 직접 입력 버튼
-              ActionChip(
-                avatar: Icon(
-                  Icons.edit_outlined,
-                  size: 16,
-                  color: _estimatedMinutes != null &&
-                          ![15, 30, 60, 120].contains(_estimatedMinutes)
-                      ? Colors.white
-                      : const Color(0xFF2E7D32),
-                ),
-                label: Text(
-                  _estimatedMinutes != null &&
-                          ![15, 30, 60, 120].contains(_estimatedMinutes)
-                      ? _formatMinutes(_estimatedMinutes!)
-                      : '직접 입력',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: _estimatedMinutes != null &&
-                            ![15, 30, 60, 120].contains(_estimatedMinutes)
-                        ? Colors.white
-                        : const Color(0xFF2E7D32),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                backgroundColor: _estimatedMinutes != null &&
+              DoodleIconChip(
+                label: _estimatedMinutes != null &&
                         ![15, 30, 60, 120].contains(_estimatedMinutes)
-                    ? const Color(0xFF2E7D32)
-                    : const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-                side: BorderSide.none,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                onPressed: () => _showTimeInputDialog(),
+                    ? _formatMinutes(_estimatedMinutes!)
+                    : '직접 입력',
+                isSelected: _estimatedMinutes != null &&
+                    ![15, 30, 60, 120].contains(_estimatedMinutes),
+                icon: Icons.edit_outlined,
+                selectedColor: DoodleColors.highlightPurple,
+                onTap: () => _showTimeInputDialog(),
               ),
             ],
           ),
@@ -1258,23 +1216,11 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
 
   Widget _buildTimeChip(int minutes, String label) {
     final isSelected = _estimatedMinutes == minutes;
-    return ActionChip(
-      label: Text(
-        label,
-        style: TextStyle(
-          fontSize: 13,
-          color: isSelected ? Colors.white : const Color(0xFF2E7D32),
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-      backgroundColor: isSelected
-          ? const Color(0xFF2E7D32)
-          : const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-      side: BorderSide.none,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      onPressed: () {
+    return DoodleChip(
+      label: label,
+      isSelected: isSelected,
+      selectedColor: DoodleColors.highlightPurple,
+      onTap: () {
         setState(() {
           _estimatedMinutes = isSelected ? null : minutes;
         });
@@ -1421,29 +1367,39 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
               spacing: 8,
               runSpacing: 8,
               children: _tags.map((tag) {
-                return Chip(
-                  label: Text(
-                    '#$tag',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Color(0xFF2E7D32),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  backgroundColor: const Color(0xFFA8E6CF).withValues(alpha: 0.3),
-                  deleteIcon: const Icon(
-                    Icons.close_rounded,
-                    size: 16,
-                    color: Color(0xFF2E7D32),
-                  ),
-                  onDeleted: () {
+                return GestureDetector(
+                  onTap: () {
                     setState(() {
                       _tags.remove(tag);
                     });
                   },
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: DoodleColors.highlightGreen.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(
+                        color: DoodleColors.pencilDark.withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '#$tag',
+                          style: DoodleTypography.labelMedium.copyWith(
+                            color: DoodleColors.pencilDark,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const Icon(
+                          Icons.close_rounded,
+                          size: 14,
+                          color: DoodleColors.pencilDark,
+                        ),
+                      ],
+                    ),
                   ),
                 );
               }).toList(),
@@ -1455,27 +1411,43 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
             controller: _tagController,
             decoration: InputDecoration(
               hintText: '태그 입력 (엔터로 추가)',
-              hintStyle: TextStyle(
-                color: Colors.grey[400],
-                fontSize: 14,
+              hintStyle: DoodleTypography.hint.copyWith(
+                color: DoodleColors.pencilLight,
               ),
-              prefixIcon: Icon(
+              prefixIcon: const Icon(
                 Icons.tag_rounded,
-                color: Colors.grey[400],
+                color: DoodleColors.pencilLight,
                 size: 20,
               ),
               filled: true,
-              fillColor: Colors.grey[50],
+              fillColor: DoodleColors.paperCream,
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderRadius: BorderRadius.circular(6),
+                borderSide: const BorderSide(
+                  color: DoodleColors.paperGrid,
+                  width: 1,
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: const BorderSide(
+                  color: DoodleColors.paperGrid,
+                  width: 1,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(6),
+                borderSide: const BorderSide(
+                  color: DoodleColors.pencilDark,
+                  width: 1.5,
+                ),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
               ),
             ),
-            style: const TextStyle(fontSize: 14),
+            style: DoodleTypography.bodyMedium,
             onChanged: (value) {
               setState(() {}); // 추천 태그 업데이트
             },
@@ -1488,10 +1460,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
             const SizedBox(height: 12),
             Text(
               inputText.isEmpty ? '자주 쓰는 태그' : '추천 태그',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[500],
-                fontWeight: FontWeight.w500,
+              style: DoodleTypography.labelSmall.copyWith(
+                color: DoodleColors.pencilLight,
               ),
             ),
             const SizedBox(height: 8),
@@ -1499,7 +1469,9 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
               spacing: 8,
               runSpacing: 8,
               children: suggestedTags.map((tag) {
-                return GestureDetector(
+                return DoodleChip(
+                  label: '#$tag',
+                  isSelected: false,
                   onTap: () {
                     setState(() {
                       if (!_tags.contains(tag)) {
@@ -1508,27 +1480,6 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                       _tagController.clear();
                     });
                   },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.grey[300]!,
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      '#$tag',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ),
                 );
               }).toList(),
             ),

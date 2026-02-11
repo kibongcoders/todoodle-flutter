@@ -319,15 +319,24 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
                           ),
                         ),
 
-                      // 체크박스
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: DoodleCheckbox(
-                          value: widget.todo.isCompleted,
-                          onChanged: (_) => widget.onToggle(),
-                          size: 24,
-                          checkColor: DoodleColors.crayonRed,
-                          boxColor: DoodleColors.pencilDark,
+                      // 체크박스 (터치 영역 확대)
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: widget.onToggle,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            top: 4,
+                            bottom: 4,
+                            left: 4,
+                            right: 14,
+                          ),
+                          child: DoodleCheckbox(
+                            value: widget.todo.isCompleted,
+                            onChanged: null, // GestureDetector에서 처리
+                            size: 24,
+                            checkColor: DoodleColors.crayonRed,
+                            boxColor: DoodleColors.pencilDark,
+                          ),
                         ),
                       ),
 
