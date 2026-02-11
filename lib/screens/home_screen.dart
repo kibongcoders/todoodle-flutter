@@ -13,6 +13,7 @@ import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
 import '../services/speech_service.dart';
 import '../shared/widgets/doodle_background.dart';
+import '../widgets/doodle_chip.dart';
 import '../widgets/todo_list_item.dart';
 import 'category_screen.dart';
 import 'sketchbook_screen.dart';
@@ -546,38 +547,12 @@ class _HomeScreenState extends State<HomeScreen> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return GestureDetector(
+    return DoodleIconChip(
+      label: label,
+      emoji: emoji,
+      isSelected: isSelected,
+      selectedColor: DoodleColors.highlightYellow,
       onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? DoodleColors.highlightYellow
-              : DoodleColors.paperWhite,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-            color: isSelected
-                ? DoodleColors.pencilDark
-                : DoodleColors.pencilLight.withValues(alpha: 0.5),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 16)),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: DoodleTypography.labelMedium.copyWith(
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? DoodleColors.pencilDark : DoodleColors.pencilLight,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

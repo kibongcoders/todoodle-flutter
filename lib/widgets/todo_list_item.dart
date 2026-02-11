@@ -377,42 +377,42 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
 
                             const SizedBox(height: 6),
 
-                            // 메타 정보 (스티커 스타일)
+                            // 메타 정보 (각각 다른 doodle 스타일)
                             Wrap(
                               spacing: 6,
                               runSpacing: 4,
                               children: [
-                                // 카테고리 이모지
-                                _StickerBadge(
+                                // 카테고리 이모지 → 마스킹 테이프 스타일
+                                _TapeBadge(
                                   emoji: widget.categoryEmoji,
                                   isCompleted: widget.todo.isCompleted,
                                 ),
-                                // D-Day 뱃지
+                                // D-Day 뱃지 → 손그림 동그라미 스타일
                                 if (_getDDay() != null && !widget.todo.isCompleted)
-                                  _StickerBadge(
+                                  _CircleBadge(
                                     text: _getDDay()!,
                                     color: _getDDayColor(),
                                     isCompleted: widget.todo.isCompleted,
                                   ),
-                                // 반복 뱃지
+                                // 반복 뱃지 → 스탬프 스타일
                                 if (_getRecurrenceLabel() != null && !widget.todo.isCompleted)
-                                  _StickerBadge(
+                                  _StampBadge(
                                     emoji: '🔄',
                                     text: _getRecurrenceLabel()!,
                                     color: DoodleColors.crayonPurple,
                                     isCompleted: widget.todo.isCompleted,
                                   ),
-                                // 시간 뱃지
+                                // 시간 뱃지 → 형광펜 스타일
                                 if (_getTimeLabel() != null)
-                                  _StickerBadge(
+                                  _HighlightBadge(
                                     emoji: '⏱',
                                     text: _getTimeLabel()!,
                                     color: DoodleColors.inkBlue,
                                     isCompleted: widget.todo.isCompleted,
                                   ),
-                                // 마감일
+                                // 마감일 → 라벨 스티커 스타일
                                 if (widget.todo.dueDate != null && !widget.todo.isCompleted)
-                                  _StickerBadge(
+                                  _LabelBadge(
                                     emoji: '📅',
                                     text: '${widget.todo.dueDate!.month}/${widget.todo.dueDate!.day}',
                                     isCompleted: widget.todo.isCompleted,
@@ -635,9 +635,15 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
   }
 }
 
-/// 스티커 스타일 뱃지 (손으로 붙인 스티커 느낌)
-class _StickerBadge extends StatelessWidget {
-  const _StickerBadge({
+// ============================================
+// 포스트잇 뱃지 위젯들 (각각 다른 doodle 스타일)
+// ============================================
+
+/// 스탬프/도장 스타일 뱃지 (반복 설정용)
+///
+/// 잉크가 번진 듯한 테두리, 도장 찍은 느낌입니다.
+class _StampBadge extends StatelessWidget {
+  const _StampBadge({
     this.emoji,
     this.text,
     this.color,
@@ -651,20 +657,213 @@ class _StickerBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayColor = isCompleted ? DoodleColors.pencilLight : (color ?? DoodleColors.pencilDark);
+    final displayColor = isCompleted
+        ? DoodleColors.pencilLight
+        : (color ?? DoodleColors.crayonPurple);
+
+    final bgColor = isCompleted
+        ? Colors.transparent
+        : displayColor.withValues(alpha: 0.12);
+
+    final borderColor = isCompleted
+        ? DoodleColors.pencilLight.withValues(alpha: 0.3)
+        : displayColor.withValues(alpha: 0.7);
+
+    return Transform.rotate(
+      angle: isCompleted ? 0 : -0.025, // 도장 찍을 때 약간 기울어진 느낌
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(2), // 거의 각진 모서리
+          border: Border.all(
+            color: borderColor,
+            width: isCompleted ? 1 : 1.5, // 도장 잉크 느낌
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (emoji != null)
+              Text(
+                emoji!,
+                style: TextStyle(fontSize: isCompleted ? 8 : 9, height: 1.1),
+              ),
+            if (emoji != null && text != null) const SizedBox(width: 2),
+            if (text != null)
+              Text(
+                text!,
+                style: DoodleTypography.badge.copyWith(
+                  color: displayColor,
+                  fontSize: isCompleted ? 8 : 9,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5, // 도장 글씨 느낌
+                  decoration: isCompleted ? TextDecoration.lineThrough : null,
+                  decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// 마스킹 테이프 스타일 뱃지 (카테고리용)
+///
+/// 반투명 테이프, 찢어진 가장자리 느낌입니다.
+class _TapeBadge extends StatelessWidget {
+  const _TapeBadge({
+    this.emoji,
+    this.color,
+    this.isCompleted = false,
+  });
+
+  final String? emoji;
+  final Color? color;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final bgColor = isCompleted
+        ? DoodleColors.paperGrid.withValues(alpha: 0.3)
+        : (color ?? DoodleColors.highlightYellow).withValues(alpha: 0.5);
+
+    return Transform.rotate(
+      angle: isCompleted ? 0 : 0.02, // 살짝 비스듬하게 붙인 느낌
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+        decoration: BoxDecoration(
+          color: bgColor,
+          // 불규칙한 모서리 - 찢어진 테이프 느낌
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(1),
+            topRight: Radius.circular(3),
+            bottomLeft: Radius.circular(2),
+            bottomRight: Radius.circular(1),
+          ),
+          // 테이프 두께감
+          boxShadow: isCompleted
+              ? null
+              : [
+                  BoxShadow(
+                    color: DoodleColors.paperShadow.withValues(alpha: 0.1),
+                    blurRadius: 1,
+                    offset: const Offset(0.5, 0.5),
+                  ),
+                ],
+        ),
+        child: emoji != null
+            ? Text(
+                emoji!,
+                style: TextStyle(
+                  fontSize: isCompleted ? 10 : 12,
+                  height: 1.0,
+                ),
+              )
+            : const SizedBox.shrink(),
+      ),
+    );
+  }
+}
+
+/// 손그림 동그라미 스타일 뱃지 (D-Day용)
+///
+/// 연필로 동그라미 친 불규칙한 원형 느낌입니다.
+class _CircleBadge extends StatelessWidget {
+  const _CircleBadge({
+    this.text,
+    this.color,
+    this.isCompleted = false,
+  });
+
+  final String? text;
+  final Color? color;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayColor = isCompleted
+        ? DoodleColors.pencilLight
+        : (color ?? DoodleColors.crayonRed);
+
+    final borderColor = isCompleted
+        ? DoodleColors.pencilLight.withValues(alpha: 0.4)
+        : displayColor.withValues(alpha: 0.8);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: isCompleted
-            ? DoodleColors.paperGrid.withValues(alpha: 0.5)
-            : (color?.withValues(alpha: 0.15) ?? DoodleColors.paperWhite),
-        borderRadius: BorderRadius.circular(6),
+            ? Colors.transparent
+            : displayColor.withValues(alpha: 0.08),
+        // 불규칙한 타원형 - 손으로 그린 동그라미 느낌
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(12),
+          topRight: Radius.circular(10),
+          bottomLeft: Radius.circular(11),
+          bottomRight: Radius.circular(13),
+        ),
         border: Border.all(
-          color: isCompleted
-              ? DoodleColors.pencilLight.withValues(alpha: 0.3)
-              : displayColor.withValues(alpha: 0.4),
-          width: 1,
+          color: borderColor,
+          width: isCompleted ? 1 : 1.5,
+        ),
+      ),
+      child: text != null
+          ? Text(
+              text!,
+              style: DoodleTypography.badge.copyWith(
+                color: displayColor,
+                fontSize: isCompleted ? 9 : 10,
+                fontWeight: FontWeight.w700,
+                decoration: isCompleted ? TextDecoration.lineThrough : null,
+                decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+              ),
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+}
+
+/// 형광펜 스타일 뱃지 (예상시간용)
+///
+/// 테두리 없이 형광펜으로 칠한 느낌입니다.
+class _HighlightBadge extends StatelessWidget {
+  const _HighlightBadge({
+    this.emoji,
+    this.text,
+    this.color,
+    this.isCompleted = false,
+  });
+
+  final String? emoji;
+  final String? text;
+  final Color? color;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayColor = isCompleted
+        ? DoodleColors.pencilLight
+        : (color ?? DoodleColors.inkBlue);
+
+    final bgColor = isCompleted
+        ? Colors.transparent
+        : (color ?? DoodleColors.highlightBlue).withValues(alpha: 0.4);
+
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: emoji != null ? 4 : 6,
+        vertical: 2,
+      ),
+      decoration: BoxDecoration(
+        color: bgColor,
+        // 형광펜 번짐 효과
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(2),
+          topRight: Radius.circular(4),
+          bottomLeft: Radius.circular(3),
+          bottomRight: Radius.circular(2),
         ),
       ),
       child: Row(
@@ -673,7 +872,77 @@ class _StickerBadge extends StatelessWidget {
           if (emoji != null)
             Text(
               emoji!,
-              style: TextStyle(fontSize: isCompleted ? 10 : 11),
+              style: TextStyle(fontSize: isCompleted ? 9 : 10, height: 1.1),
+            ),
+          if (emoji != null && text != null) const SizedBox(width: 2),
+          if (text != null)
+            Text(
+              text!,
+              style: DoodleTypography.badge.copyWith(
+                color: displayColor,
+                fontSize: isCompleted ? 9 : 10,
+                fontWeight: isCompleted ? FontWeight.w400 : FontWeight.w700,
+                decoration: isCompleted ? TextDecoration.lineThrough : null,
+                decorationColor: isCompleted ? DoodleColors.pencilLight : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 라벨 스티커 스타일 뱃지 (마감일용)
+///
+/// 라벨 메이커로 찍은 깔끔한 라벨 느낌입니다.
+class _LabelBadge extends StatelessWidget {
+  const _LabelBadge({
+    this.emoji,
+    this.text,
+    this.isCompleted = false,
+  });
+
+  final String? emoji;
+  final String? text;
+  final bool isCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    final displayColor = isCompleted
+        ? DoodleColors.pencilLight
+        : DoodleColors.pencilDark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+      decoration: BoxDecoration(
+        color: isCompleted
+            ? DoodleColors.paperGrid.withValues(alpha: 0.3)
+            : DoodleColors.paperWhite,
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(
+          color: isCompleted
+              ? DoodleColors.pencilLight.withValues(alpha: 0.3)
+              : DoodleColors.pencilLight.withValues(alpha: 0.6),
+          width: 1,
+        ),
+        // 라벨 스티커 두께감
+        boxShadow: isCompleted
+            ? null
+            : [
+                BoxShadow(
+                  color: DoodleColors.paperShadow.withValues(alpha: 0.15),
+                  blurRadius: 1,
+                  offset: const Offset(0.5, 0.5),
+                ),
+              ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (emoji != null)
+            Text(
+              emoji!,
+              style: TextStyle(fontSize: isCompleted ? 9 : 10, height: 1.1),
             ),
           if (emoji != null && text != null) const SizedBox(width: 3),
           if (text != null)
@@ -681,7 +950,10 @@ class _StickerBadge extends StatelessWidget {
               text!,
               style: DoodleTypography.badge.copyWith(
                 color: displayColor,
-                fontSize: 10,
+                fontSize: isCompleted ? 9 : 10,
+                fontWeight: FontWeight.w500,
+                decoration: isCompleted ? TextDecoration.lineThrough : null,
+                decorationColor: isCompleted ? DoodleColors.pencilLight : null,
               ),
             ),
         ],
