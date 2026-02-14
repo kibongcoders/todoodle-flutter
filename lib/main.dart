@@ -10,6 +10,7 @@ import 'models/focus_session.dart';
 import 'models/plant.dart';
 import 'models/template.dart';
 import 'models/todo.dart';
+import 'features/statistics/presentation/providers/statistics_provider.dart';
 import 'providers/achievement_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/focus_provider.dart';
@@ -139,6 +140,19 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: focusProvider),
         ChangeNotifierProvider.value(value: templateProvider),
         ChangeNotifierProvider.value(value: achievementProvider),
+        // 통계 Provider (다른 Provider들에 의존)
+        ProxyProvider5<TodoProvider, FocusProvider, SketchbookProvider,
+            AchievementProvider, CategoryProvider, StatisticsProvider>(
+          update: (_, todoProvider, focusProvider, sketchbookProvider,
+                  achievementProvider, categoryProvider, _) =>
+              StatisticsProvider(
+            todoProvider: todoProvider,
+            focusProvider: focusProvider,
+            sketchbookProvider: sketchbookProvider,
+            achievementProvider: achievementProvider,
+            categoryProvider: categoryProvider,
+          ),
+        ),
       ],
       child: MaterialApp(
         title: 'todoodle',

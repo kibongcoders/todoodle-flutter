@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../features/statistics/presentation/pages/statistics_screen.dart';
 import '../providers/settings_provider.dart';
 import '../providers/todo_provider.dart';
 import '../services/notification_service.dart';
@@ -233,6 +234,23 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const AchievementsScreen()),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // 통계 섹션
+              _buildSectionCard(
+                emoji: '📊',
+                title: '통계',
+                child: _buildNavigationRow(
+                  context,
+                  icon: '📈',
+                  title: '내 통계',
+                  subtitle: '할일 완료율, 집중 시간 등을 확인합니다',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const StatisticsScreen()),
                   ),
                 ),
               ),
