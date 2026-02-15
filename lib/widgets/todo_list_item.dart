@@ -20,6 +20,8 @@ class TodoListItem extends StatefulWidget {
     required this.onTap,
     required this.onDelete,
     this.depth = 0,
+    this.index,
+    this.showDragHandle = true,
   });
 
   final Todo todo;
@@ -28,6 +30,10 @@ class TodoListItem extends StatefulWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
   final int depth;
+  /// ReorderableListView 내에서의 인덱스 (드래그 핸들용)
+  final int? index;
+  /// 드래그 핸들 표시 여부
+  final bool showDragHandle;
 
   @override
   State<TodoListItem> createState() => _TodoListItemState();
@@ -208,20 +214,11 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
             // 하위 할일 목록
             AnimatedCrossFade(
               firstChild: const SizedBox.shrink(),
-              secondChild: Column(
-                children: children.map((child) {
-                  final childCategory = child.categoryIds.isNotEmpty
-                      ? categoryProvider.getCategoryById(child.categoryIds.first)
-                      : null;
-                  return TodoListItem(
-                    todo: child,
-                    categoryEmoji: childCategory?.emoji ?? '📌',
-                    onToggle: () => todoProvider.toggleComplete(child.id),
-                    onTap: () => _openFormScreen(context, child),
-                    onDelete: () => todoProvider.deleteWithChildren(child.id),
-                    depth: widget.depth + 1,
-                  );
-                }).toList(),
+              secondChild: _buildChildrenList(
+                context,
+                children,
+                todoProvider,
+                categoryProvider,
               ),
               crossFadeState: hasChildren && _isExpanded
                   ? CrossFadeState.showSecond
@@ -299,6 +296,10 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // 드래그 핸들
+                      if (widget.showDragHandle && widget.index != null)
+                        _buildDragHandle(context),
+
                       // 확장/축소 버튼
                       if (hasChildren)
                         GestureDetector(
@@ -495,6 +496,105 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
         ],
       ),
     );
+  }
+
+  /// 하위 할일 리스트 (드래그 정렬 지원)
+  Widget _buildChildrenList(
+    BuildContext context,
+    List<Todo> children,
+    TodoProvider todoProvider,
+    CategoryProvider categoryProvider,
+  ) {
+    if (children.isEmpty) return const SizedBox.shrink();
+
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: children.length,
+      onReorder: (oldIndex, newIndex) {
+        todoProvider.reorderSubtask(widget.todo.id, oldIndex, newIndex);
+      },
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final elevation = Tween<double>(begin: 0, end: 6).animate(animation).value;
+            return Material(
+              elevation: elevation,
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.transparent,
+              child: child,
+            );
+          },
+          child: child,
+        );
+      },
+      itemBuilder: (context, index) {
+        final child = children[index];
+        final childCategory = child.categoryIds.isNotEmpty
+            ? categoryProvider.getCategoryById(child.categoryIds.first)
+            : null;
+        return TodoListItem(
+          key: ValueKey(child.id),
+          todo: child,
+          categoryEmoji: childCategory?.emoji ?? '📌',
+          onToggle: () => todoProvider.toggleComplete(child.id),
+          onTap: () => _openFormScreen(context, child),
+          onDelete: () => todoProvider.deleteWithChildren(child.id),
+          depth: widget.depth + 1,
+          index: index,
+        );
+      },
+    );
+  }
+
+  /// 드래그 핸들 위젯 (Doodle 스타일)
+  Widget _buildDragHandle(BuildContext context) {
+    final isDisabled = widget.todo.isCompleted;
+
+    // 드래그 핸들 아이콘 (연필로 그린 듯한 ≡ 모양)
+    final handleIcon = Padding(
+      padding: const EdgeInsets.only(top: 4, right: 8),
+      child: Opacity(
+        opacity: isDisabled ? 0.3 : 0.6,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // 손그림 스타일 세 줄 (≡)
+            for (int i = 0; i < 3; i++) ...[
+              Transform.rotate(
+                angle: isDisabled ? 0 : (i - 1) * 0.02, // 약간 흔들리는 느낌
+                child: Container(
+                  width: 14 + (i == 1 ? 2 : 0), // 중간 줄이 약간 길게
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: isDisabled
+                        ? DoodleColors.pencilLight
+                        : DoodleColors.pencilDark,
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+              ),
+              if (i < 2) const SizedBox(height: 3),
+            ],
+          ],
+        ),
+      ),
+    );
+
+    // ReorderableListView 내에서 드래그 시작 리스너로 감싸기
+    if (!isDisabled && widget.index != null) {
+      return ReorderableDragStartListener(
+        index: widget.index!,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.grab,
+          child: handleIcon,
+        ),
+      );
+    }
+
+    // 완료된 항목은 드래그 불가 (시각적으로만 표시)
+    return handleIcon;
   }
 
   Widget _buildSwipeBackground({required bool isComplete}) {

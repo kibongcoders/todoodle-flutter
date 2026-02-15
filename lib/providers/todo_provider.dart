@@ -292,6 +292,83 @@ class TodoProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 하위 할일(서브태스크) 순서 변경
+  ///
+  /// [parentId]가 같은 자식 할일들의 순서를 변경합니다.
+  void reorderSubtask(String parentId, int oldIndex, int newIndex) {
+    final children = getChildTodos(parentId);
+
+    if (children.isEmpty) return;
+    if (oldIndex >= children.length || newIndex > children.length) return;
+
+    if (newIndex > oldIndex) newIndex--;
+
+    final item = children.removeAt(oldIndex);
+    children.insert(newIndex, item);
+
+    // sortOrder 재할당
+    for (int i = 0; i < children.length; i++) {
+      children[i].sortOrder = i;
+      children[i].save();
+    }
+
+    notifyListeners();
+  }
+
+  /// 섹션 내에서 할일 순서 변경
+  ///
+  /// [sectionKey]는 'overdue', 'today', 'tomorrow', 'thisWeek', 'later', 'noDueDate' 중 하나
+  void reorderTodoInSection(String sectionKey, int oldIndex, int newIndex) {
+    final grouped = getGroupedTodos();
+    final sectionItems = grouped[sectionKey];
+
+    if (sectionItems == null || sectionItems.isEmpty) return;
+
+    // 완료된 항목 섹션은 재정렬 불가
+    if (sectionKey == 'completed') return;
+
+    if (oldIndex >= sectionItems.length || newIndex > sectionItems.length) {
+      return;
+    }
+
+    if (newIndex > oldIndex) newIndex--;
+
+    final item = sectionItems.removeAt(oldIndex);
+    sectionItems.insert(newIndex, item);
+
+    // 해당 섹션 내에서만 sortOrder 재할당
+    // 섹션 순서를 유지하기 위해 큰 간격으로 설정
+    final sectionBaseOrder = _getSectionBaseOrder(sectionKey);
+    for (int i = 0; i < sectionItems.length; i++) {
+      sectionItems[i].sortOrder = sectionBaseOrder + i;
+      sectionItems[i].save();
+    }
+
+    notifyListeners();
+  }
+
+  /// 섹션별 기본 sortOrder 값 (섹션 간 순서 유지용)
+  int _getSectionBaseOrder(String sectionKey) {
+    switch (sectionKey) {
+      case 'overdue':
+        return 0;
+      case 'today':
+        return 10000;
+      case 'tomorrow':
+        return 20000;
+      case 'thisWeek':
+        return 30000;
+      case 'later':
+        return 40000;
+      case 'noDueDate':
+        return 50000;
+      case 'completed':
+        return 60000;
+      default:
+        return 0;
+    }
+  }
+
   // 마감일별 섹션 그룹핑
   Map<String, List<Todo>> getGroupedTodos() {
     final items = getRootTodos();

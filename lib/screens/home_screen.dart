@@ -613,6 +613,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     onToggle: () => todoProvider.toggleComplete(todo.id),
                     onTap: () => _openFormScreen(context, todo),
                     onDelete: () => todoProvider.softDeleteTodo(todo.id),
+                    index: index,
                   );
                 },
               ),
@@ -630,7 +631,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     final grouped = todoProvider.getGroupedTodos();
 
-    // Doodle 스타일 섹션 정의 (순서, 이름, 이모지, 색상)
+    // Doodle 스타일 섹션 정의 (키, 이름, 이모지, 색상)
     final sections = [
       ('overdue', '지연됨', '🚨', DoodleColors.crayonRed),
       ('today', '오늘', '📅', DoodleColors.primary),
@@ -641,42 +642,100 @@ class _HomeScreenState extends State<HomeScreen> {
       ('completed', '완료됨', '✅', DoodleColors.pencilLight),
     ];
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(top: 8, bottom: 100),
-      itemCount: sections.fold<int>(0, (sum, section) {
-        final items = grouped[section.$1] ?? [];
-        return sum + (items.isEmpty ? 0 : items.length + 1); // +1 for header
-      }),
-      itemBuilder: (context, index) {
-        int currentIndex = 0;
-        for (final section in sections) {
-          final items = grouped[section.$1] ?? [];
-          if (items.isEmpty) continue;
+    // 섹션별 위젯 리스트 생성
+    final sectionWidgets = <Widget>[];
 
-          // 헤더 체크
-          if (index == currentIndex) {
-            return _buildSectionHeader(section.$2, section.$3, section.$4, items.length);
-          }
-          currentIndex++;
+    for (final section in sections) {
+      final sectionKey = section.$1;
+      final items = grouped[sectionKey] ?? [];
+      if (items.isEmpty) continue;
 
-          // 아이템 체크
-          if (index < currentIndex + items.length) {
-            final todo = items[index - currentIndex];
-            final category = todo.categoryIds.isNotEmpty
-                ? categoryProvider.getCategoryById(todo.categoryIds.first)
-                : null;
-            return TodoListItem(
+      // 섹션 헤더
+      sectionWidgets.add(
+        _buildSectionHeader(section.$2, section.$3, section.$4, items.length),
+      );
+
+      // 완료된 섹션은 드래그 불가 (일반 리스트)
+      if (sectionKey == 'completed') {
+        for (final todo in items) {
+          final category = todo.categoryIds.isNotEmpty
+              ? categoryProvider.getCategoryById(todo.categoryIds.first)
+              : null;
+          sectionWidgets.add(
+            TodoListItem(
               key: ValueKey(todo.id),
               todo: todo,
               categoryEmoji: category?.emoji ?? '📌',
               onToggle: () => todoProvider.toggleComplete(todo.id),
               onTap: () => _openFormScreen(context, todo),
               onDelete: () => todoProvider.softDeleteTodo(todo.id),
-            );
-          }
-          currentIndex += items.length;
+              showDragHandle: false,
+            ),
+          );
         }
-        return const SizedBox.shrink();
+      } else {
+        // 미완료 섹션은 ReorderableListView 사용
+        sectionWidgets.add(
+          _buildReorderableSection(
+            context,
+            sectionKey,
+            items,
+            todoProvider,
+            categoryProvider,
+          ),
+        );
+      }
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(top: 8, bottom: 100),
+      children: sectionWidgets,
+    );
+  }
+
+  /// 섹션 내 재정렬 가능한 리스트
+  Widget _buildReorderableSection(
+    BuildContext context,
+    String sectionKey,
+    List<Todo> items,
+    TodoProvider todoProvider,
+    CategoryProvider categoryProvider,
+  ) {
+    return ReorderableListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: items.length,
+      onReorder: (oldIndex, newIndex) {
+        todoProvider.reorderTodoInSection(sectionKey, oldIndex, newIndex);
+      },
+      proxyDecorator: (child, index, animation) {
+        return AnimatedBuilder(
+          animation: animation,
+          builder: (context, child) {
+            final elevation = Tween<double>(begin: 0, end: 8).animate(animation).value;
+            return Material(
+              elevation: elevation,
+              borderRadius: BorderRadius.circular(16),
+              child: child,
+            );
+          },
+          child: child,
+        );
+      },
+      itemBuilder: (context, index) {
+        final todo = items[index];
+        final category = todo.categoryIds.isNotEmpty
+            ? categoryProvider.getCategoryById(todo.categoryIds.first)
+            : null;
+        return TodoListItem(
+          key: ValueKey(todo.id),
+          todo: todo,
+          categoryEmoji: category?.emoji ?? '📌',
+          onToggle: () => todoProvider.toggleComplete(todo.id),
+          onTap: () => _openFormScreen(context, todo),
+          onDelete: () => todoProvider.softDeleteTodo(todo.id),
+          index: index,
+        );
       },
     );
   }
