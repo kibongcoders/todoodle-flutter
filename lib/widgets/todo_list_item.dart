@@ -803,7 +803,9 @@ class _StampBadge extends StatelessWidget {
               Text(
                 text!,
                 style: DoodleTypography.badge.copyWith(
-                  color: displayColor,
+                  color: isCompleted
+                      ? DoodleColors.pencilLight
+                      : DoodleColors.inkBlack, // 검은색으로 가독성 확보
                   fontSize: isCompleted ? 8 : 10,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.8, // 도장 글씨 느낌
