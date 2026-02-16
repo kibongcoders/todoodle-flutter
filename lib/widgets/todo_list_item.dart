@@ -766,42 +766,27 @@ class _StampBadge extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
         decoration: BoxDecoration(
-          // 잉크가 스며든 듯한 그라데이션 배경
-          gradient: isCompleted
-              ? null
-              : LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    displayColor.withValues(alpha: 0.18),
-                    displayColor.withValues(alpha: 0.08),
-                    displayColor.withValues(alpha: 0.15),
-                  ],
-                  stops: const [0.0, 0.5, 1.0],
-                ),
-          color: isCompleted ? Colors.transparent : null,
+          // 불투명 흰색 배경으로 가독성 확보
+          color: isCompleted
+              ? Colors.transparent
+              : DoodleColors.paperWhite,
           borderRadius: BorderRadius.circular(2),
-          // 이중 테두리로 도장 잉크 번짐 표현
+          // 도장 테두리
           border: Border.all(
             color: isCompleted
                 ? DoodleColors.pencilLight.withValues(alpha: 0.3)
-                : displayColor.withValues(alpha: 0.75),
-            width: isCompleted ? 1 : 2,
+                : displayColor,
+            width: isCompleted ? 1 : 1.5,
           ),
           // 도장 눌린 깊이감
           boxShadow: isCompleted
               ? null
               : [
                   BoxShadow(
-                    color: displayColor.withValues(alpha: 0.2),
+                    color: displayColor.withValues(alpha: 0.3),
                     blurRadius: 0,
                     spreadRadius: 0.5,
                     offset: const Offset(0.5, 0.5),
-                  ),
-                  BoxShadow(
-                    color: displayColor.withValues(alpha: 0.1),
-                    blurRadius: 2,
-                    offset: const Offset(1, 1),
                   ),
                 ],
         ),
