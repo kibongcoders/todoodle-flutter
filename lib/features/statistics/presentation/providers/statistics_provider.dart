@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import '../../../../models/todo.dart';
 import '../../../../providers/achievement_provider.dart';
 import '../../../../providers/category_provider.dart';
@@ -11,7 +9,8 @@ import '../../domain/models/statistics_data.dart';
 /// 통계 Provider
 ///
 /// 각 Provider에서 데이터를 수집하고 통계를 계산합니다.
-class StatisticsProvider extends ChangeNotifier {
+/// 기간(period)은 화면에서 setState로 관리하고, 메서드 파라미터로 전달합니다.
+class StatisticsProvider {
   StatisticsProvider({
     required TodoProvider todoProvider,
     required FocusProvider focusProvider,
@@ -31,29 +30,15 @@ class StatisticsProvider extends ChangeNotifier {
   final CategoryProvider _categoryProvider;
 
   // ============================================
-  // 상태
-  // ============================================
-
-  StatsPeriod _period = StatsPeriod.week;
-  StatsPeriod get period => _period;
-
-  void setPeriod(StatsPeriod period) {
-    if (_period != period) {
-      _period = period;
-      notifyListeners();
-    }
-  }
-
-  // ============================================
   // 날짜 범위 계산
   // ============================================
 
-  /// 현재 기간에 따른 시작/종료 날짜
-  (DateTime start, DateTime end) get dateRange {
+  /// 기간에 따른 시작/종료 날짜
+  (DateTime start, DateTime end) getDateRange(StatsPeriod period) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    switch (_period) {
+    switch (period) {
       case StatsPeriod.week:
         return (today.subtract(const Duration(days: 6)), today);
       case StatsPeriod.month:
@@ -64,8 +49,8 @@ class StatisticsProvider extends ChangeNotifier {
   }
 
   /// 기간 내 모든 날짜 목록
-  List<DateTime> get datesInRange {
-    final (start, end) = dateRange;
+  List<DateTime> getDatesInRange(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final dates = <DateTime>[];
     var current = start;
     while (!current.isAfter(end)) {
@@ -80,15 +65,15 @@ class StatisticsProvider extends ChangeNotifier {
   // ============================================
 
   /// 요약 통계 데이터
-  SummaryStats get summaryStats {
-    final (start, end) = dateRange;
+  SummaryStats getSummaryStats(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final completions = _todoProvider.getCompletionsByDateRange(start, end);
 
     // 기간 내 완료된 할일 총 개수
     int totalCompleted = 0;
     int totalTodos = 0;
 
-    for (final date in datesInRange) {
+    for (final date in getDatesInRange(period)) {
       final dateKey = DateTime(date.year, date.month, date.day);
       final todos = completions[dateKey] ?? [];
       totalCompleted += todos.where((t) => t.isCompleted).length;
@@ -123,12 +108,12 @@ class StatisticsProvider extends ChangeNotifier {
   // ============================================
 
   /// 일별 완료 추이 데이터
-  List<CompletionPoint> get completionTrend {
-    final (start, end) = dateRange;
+  List<CompletionPoint> getCompletionTrend(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final completions = _todoProvider.getCompletionsByDateRange(start, end);
     final points = <CompletionPoint>[];
 
-    for (final date in datesInRange) {
+    for (final date in getDatesInRange(period)) {
       final dateKey = DateTime(date.year, date.month, date.day);
       final todos = completions[dateKey] ?? [];
       final completed = todos.where((t) => t.isCompleted).length;
@@ -149,8 +134,8 @@ class StatisticsProvider extends ChangeNotifier {
   // ============================================
 
   /// 우선순위별 통계
-  List<PriorityStat> get priorityDistribution {
-    final (start, end) = dateRange;
+  List<PriorityStat> getPriorityDistribution(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final completions = _todoProvider.getCompletionsByDateRange(start, end);
 
     // 모든 할일 수집
@@ -197,8 +182,8 @@ class StatisticsProvider extends ChangeNotifier {
   // ============================================
 
   /// 카테고리별 통계 (상위 5개)
-  List<CategoryStat> get categoryStats {
-    final (start, end) = dateRange;
+  List<CategoryStat> getCategoryStats(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final completions = _todoProvider.getCompletionsByDateRange(start, end);
 
     // 모든 할일 수집
@@ -262,8 +247,8 @@ class StatisticsProvider extends ChangeNotifier {
   // ============================================
 
   /// 통계 인사이트
-  StatsInsights get insights {
-    final (start, end) = dateRange;
+  StatsInsights getInsights(StatsPeriod period) {
+    final (start, end) = getDateRange(period);
     final completions = _todoProvider.getCompletionsByDateRange(start, end);
 
     // 요일별 완료 수 집계
@@ -292,14 +277,15 @@ class StatisticsProvider extends ChangeNotifier {
     }
 
     // 상위 카테고리
-    final topCategoryStat = categoryStats.isNotEmpty ? categoryStats.first : null;
+    final catStats = getCategoryStats(period);
+    final topCategoryStat = catStats.isNotEmpty ? catStats.first : null;
 
     // 상위 태그
     final allTags = _todoProvider.getAllTags();
     final topTag = allTags.isNotEmpty ? allTags.first : null;
 
     // 평균 완료율
-    final trend = completionTrend;
+    final trend = getCompletionTrend(period);
     double totalRate = 0;
     int validDays = 0;
     for (final point in trend) {

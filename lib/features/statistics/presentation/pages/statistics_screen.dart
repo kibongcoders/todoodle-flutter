@@ -16,8 +16,15 @@ import '../widgets/stat_summary_card.dart';
 /// 통계 화면
 ///
 /// Doodle 스타일의 통계 대시보드입니다.
-class StatisticsScreen extends StatelessWidget {
+class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
+
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen> {
+  StatsPeriod _period = StatsPeriod.week;
 
   @override
   Widget build(BuildContext context) {
@@ -49,33 +56,35 @@ class StatisticsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 기간 필터
-                  _buildPeriodFilter(context, provider),
+                  _buildPeriodFilter(context),
                   const SizedBox(height: 24),
 
                   // 요약 카드
-                  StatSummaryCard(stats: provider.summaryStats),
+                  StatSummaryCard(stats: provider.getSummaryStats(_period)),
                   const SizedBox(height: 24),
 
                   // 완료율 추이 차트
                   _buildSectionTitle('📈 완료 추이'),
                   const SizedBox(height: 12),
                   CompletionChart(
-                    data: provider.completionTrend,
-                    period: provider.period,
+                    data: provider.getCompletionTrend(_period),
+                    period: _period,
                   ),
                   const SizedBox(height: 24),
 
                   // 우선순위 분포 차트
                   _buildSectionTitle('⚡ 우선순위별 분포'),
                   const SizedBox(height: 12),
-                  PriorityPieChart(data: provider.priorityDistribution),
+                  PriorityPieChart(
+                    data: provider.getPriorityDistribution(_period),
+                  ),
                   const SizedBox(height: 24),
 
                   // 카테고리별 통계
-                  if (provider.categoryStats.isNotEmpty) ...[
+                  if (provider.getCategoryStats(_period).isNotEmpty) ...[
                     _buildSectionTitle('📁 카테고리별 통계'),
                     const SizedBox(height: 12),
-                    CategoryBarChart(data: provider.categoryStats),
+                    CategoryBarChart(data: provider.getCategoryStats(_period)),
                     const SizedBox(height: 24),
                   ],
 
@@ -86,7 +95,7 @@ class StatisticsScreen extends StatelessWidget {
                   const SizedBox(height: 24),
 
                   // 인사이트 섹션
-                  _buildInsightsSection(provider.insights),
+                  _buildInsightsSection(provider.getInsights(_period)),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -98,15 +107,18 @@ class StatisticsScreen extends StatelessWidget {
   }
 
   /// 기간 필터 칩
-  Widget _buildPeriodFilter(
-      BuildContext context, StatisticsProvider provider) {
+  Widget _buildPeriodFilter(BuildContext context) {
     return Center(
       child: DoodleChipGroup<StatsPeriod>(
         items: StatsPeriod.values,
-        selectedItem: provider.period,
+        selectedItem: _period,
         labelBuilder: (period) => period.label,
         emojiBuilder: (period) => period.emoji,
-        onSelected: (period) => provider.setPeriod(period),
+        onSelected: (period) {
+          setState(() {
+            _period = period;
+          });
+        },
         colorBuilder: (_) => DoodleColors.highlightYellow,
       ),
     );
