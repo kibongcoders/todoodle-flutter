@@ -582,6 +582,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (showSummary) _buildTodaySummary(todoProvider),
             Expanded(
               child: ReorderableListView.builder(
+                buildDefaultDragHandles: false, // 커스텀 드래그 핸들 사용
                 padding: const EdgeInsets.only(top: 8, bottom: 100),
                 itemCount: rootTodos.length,
                 onReorder: (oldIndex, newIndex) {
@@ -702,6 +703,7 @@ class _HomeScreenState extends State<HomeScreen> {
     CategoryProvider categoryProvider,
   ) {
     return ReorderableListView.builder(
+      buildDefaultDragHandles: false, // 커스텀 드래그 핸들 사용
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: items.length,
