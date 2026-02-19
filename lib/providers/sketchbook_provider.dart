@@ -25,6 +25,7 @@ class SketchbookProvider extends ChangeNotifier {
 
   Doodle? _currentDoodle;
   bool _initialized = false;
+  List<Doodle>? _completedDoodlesCache;
 
   /// 낙서가 완성되었을 때 호출되는 콜백
   Function(int totalDoodlesCompleted)? onDoodleCompleted;
@@ -39,11 +40,17 @@ class SketchbookProvider extends ChangeNotifier {
   Doodle? get currentDoodle => _currentDoodle;
   bool get initialized => _initialized;
 
-  /// 완성된 낙서 목록 (스케치북에 표시)
-  List<Doodle> get completedDoodles => _doodlesBox.values
-      .where((d) => d.isCompleted)
-      .toList()
-    ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
+  /// 완성된 낙서 목록 (스케치북에 표시, 캐싱)
+  List<Doodle> get completedDoodles {
+    return _completedDoodlesCache ??= _doodlesBox.values
+        .where((d) => d.isCompleted)
+        .toList()
+      ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
+  }
+
+  void _invalidateCache() {
+    _completedDoodlesCache = null;
+  }
 
   /// 페이지별 낙서 그룹
   Map<int, List<Doodle>> get doodlesByPage {
@@ -95,6 +102,7 @@ class SketchbookProvider extends ChangeNotifier {
       _startNewDoodle();
     }
 
+    _invalidateCache();
     _initialized = true;
     notifyListeners();
   }
@@ -199,6 +207,7 @@ class SketchbookProvider extends ChangeNotifier {
 
       // 새 낙서 시작
       _startNewDoodle();
+      _invalidateCache();
       notifyListeners();
       return true; // 낙서 완성
     }

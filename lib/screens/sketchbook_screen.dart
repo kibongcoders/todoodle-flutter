@@ -91,7 +91,7 @@ class _SketchbookScreenState extends State<SketchbookScreen> {
                   LevelCard(isWide: isWide),
 
                   // 통계 카드
-                  StatsCard(provider: provider, isWide: isWide),
+                  StatsCard(isWide: isWide),
 
                   // 현재 그리는 낙서
                   if (provider.currentDoodle != null)
@@ -101,7 +101,7 @@ class _SketchbookScreenState extends State<SketchbookScreen> {
                     ),
 
                   // 테마 선택
-                  ThemeSelector(provider: provider),
+                  const ThemeSelector(),
 
                   // 스케치북 갤러리
                   Expanded(
@@ -123,18 +123,22 @@ class _SketchbookScreenState extends State<SketchbookScreen> {
       if (boundary == null) return;
 
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
+      try {
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData == null) return;
 
-      final dir = await getTemporaryDirectory();
-      final file = File(
-          '${dir.path}/todoodle_page_${_currentPage + 1}.png');
-      await file.writeAsBytes(byteData.buffer.asUint8List());
+        final dir = await getTemporaryDirectory();
+        final file = File(
+            '${dir.path}/todoodle_page_${_currentPage + 1}.png');
+        await file.writeAsBytes(byteData.buffer.asUint8List());
 
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Todoodle 스케치북 ${_currentPage + 1}페이지',
-      );
+        await Share.shareXFiles(
+          [XFile(file.path)],
+          text: 'Todoodle 스케치북 ${_currentPage + 1}페이지',
+        );
+      } finally {
+        image.dispose();
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
