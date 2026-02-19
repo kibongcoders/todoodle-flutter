@@ -25,13 +25,14 @@ class DoodleAdapter extends TypeAdapter<Doodle> {
       isCompleted: fields[5] as bool,
       pageIndex: fields[6] as int,
       positionIndex: fields[7] as int,
+      colorIndex: fields[8] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Doodle obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class DoodleAdapter extends TypeAdapter<Doodle> {
       ..writeByte(6)
       ..write(obj.pageIndex)
       ..writeByte(7)
-      ..write(obj.positionIndex);
+      ..write(obj.positionIndex)
+      ..writeByte(8)
+      ..write(obj.colorIndex);
   }
 
   @override
@@ -74,6 +77,8 @@ class DoodleCategoryAdapter extends TypeAdapter<DoodleCategory> {
         return DoodleCategory.medium;
       case 2:
         return DoodleCategory.complex;
+      case 3:
+        return DoodleCategory.rare;
       default:
         return DoodleCategory.simple;
     }
@@ -90,6 +95,9 @@ class DoodleCategoryAdapter extends TypeAdapter<DoodleCategory> {
         break;
       case DoodleCategory.complex:
         writer.writeByte(2);
+        break;
+      case DoodleCategory.rare:
+        writer.writeByte(3);
         break;
     }
   }
@@ -136,6 +144,12 @@ class DoodleTypeAdapter extends TypeAdapter<DoodleType> {
         return DoodleType.rocket;
       case 11:
         return DoodleType.cat;
+      case 12:
+        return DoodleType.rainbowStar;
+      case 13:
+        return DoodleType.crown;
+      case 14:
+        return DoodleType.diamond;
       default:
         return DoodleType.star;
     }
@@ -179,6 +193,15 @@ class DoodleTypeAdapter extends TypeAdapter<DoodleType> {
         break;
       case DoodleType.cat:
         writer.writeByte(11);
+        break;
+      case DoodleType.rainbowStar:
+        writer.writeByte(12);
+        break;
+      case DoodleType.crown:
+        writer.writeByte(13);
+        break;
+      case DoodleType.diamond:
+        writer.writeByte(14);
         break;
     }
   }

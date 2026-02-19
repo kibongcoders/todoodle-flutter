@@ -8,6 +8,7 @@ import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
+import '../providers/level_provider.dart';
 import '../providers/sketchbook_provider.dart';
 import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
@@ -106,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
             elevation: 0,
             scrolledUnderElevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.dark,
-            title: _isSearching ? _buildSearchField() : null,
+            title: _isSearching ? _buildSearchField() : _buildLevelBadge(),
             actions: [
               _buildSearchButton(),
               _buildFilterButton(context),
@@ -140,6 +141,72 @@ class _HomeScreenState extends State<HomeScreen> {
             heroTag: 'home_fab',
             onPressed: () => _openFormScreen(context, null),
             child: const Icon(Icons.add),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLevelBadge() {
+    return Consumer<LevelProvider>(
+      builder: (context, levelProvider, _) {
+        if (!levelProvider.initialized) return const SizedBox.shrink();
+
+        final level = levelProvider.currentLevel;
+        final progress = levelProvider.currentLevelProgress;
+        final title = LevelProvider.titleForLevel(level);
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SketchbookScreen()),
+            );
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 레벨 원형 (XP 프로그래스 링 포함)
+              SizedBox(
+                width: 32,
+                height: 32,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 32,
+                      height: 32,
+                      child: CircularProgressIndicator(
+                        value: progress,
+                        strokeWidth: 2.5,
+                        backgroundColor: DoodleColors.paperGrid,
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          DoodleColors.primary,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '$level',
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: DoodleColors.primaryDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              // 레벨 정보
+              Text(
+                'Lv.$level $title',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: DoodleColors.pencilDark,
+                ),
+              ),
+            ],
           ),
         );
       },

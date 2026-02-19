@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
 import '../providers/achievement_provider.dart';
+import '../providers/level_provider.dart';
 import '../widgets/achievement_popup.dart';
+import '../widgets/level_up_popup.dart';
 import 'calendar_screen.dart';
 import 'focus_screen.dart';
 import 'habit_screen.dart';
@@ -38,6 +40,13 @@ class _MainScreenState extends State<MainScreen> {
       achievementProvider.onAchievementUnlocked = (achievement) {
         if (mounted) {
           AchievementPopup.show(context, achievement);
+        }
+      };
+
+      final levelProvider = context.read<LevelProvider>();
+      levelProvider.onLevelUp = (newLevel) {
+        if (mounted) {
+          LevelUpPopup.show(context, newLevel);
         }
       };
     });

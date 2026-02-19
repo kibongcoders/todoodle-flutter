@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../models/todo.dart';
 import '../services/notification_service.dart';
 import 'achievement_provider.dart';
+import 'level_provider.dart';
 import 'settings_provider.dart';
 import 'sketchbook_provider.dart';
 
@@ -22,6 +23,7 @@ class TodoProvider extends ChangeNotifier {
   SettingsProvider? _settingsProvider;
   SketchbookProvider? _sketchbookProvider;
   AchievementProvider? _achievementProvider;
+  LevelProvider? _levelProvider;
 
   void setSettingsProvider(SettingsProvider provider) {
     _settingsProvider = provider;
@@ -34,6 +36,10 @@ class TodoProvider extends ChangeNotifier {
 
   void setAchievementProvider(AchievementProvider provider) {
     _achievementProvider = provider;
+  }
+
+  void setLevelProvider(LevelProvider provider) {
+    _levelProvider = provider;
   }
 
   /// 알림 액션 콜백 설정
@@ -482,9 +488,10 @@ class TodoProvider extends ChangeNotifier {
         todo.completionHistory = history;
       }
 
-      // 완료 상태로 변경될 때 낙서 획 추가 및 업적 체크
+      // 완료 상태로 변경될 때 낙서 획 추가, XP 획득, 업적 체크
       if (!wasCompleted && todo.isCompleted) {
         _sketchbookProvider?.drawStroke();
+        _levelProvider?.addXP(LevelProvider.xpForPriority(todo.priority));
         _checkAchievements();
       }
 

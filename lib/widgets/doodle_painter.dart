@@ -15,15 +15,25 @@ class DoodlePainter extends CustomPainter {
     required this.progress,
     this.strokeColor,
     this.strokeWidth = 2.5,
+    this.fillColor,
   });
 
   final DoodleType type;
   final double progress; // 0.0 ~ 1.0
   final Color? strokeColor;
   final double strokeWidth;
+  final Color? fillColor; // 크레파스 채우기 색상
 
   @override
   void paint(Canvas canvas, Size size) {
+    // 크레파스 채우기 (완성된 낙서에만)
+    if (fillColor != null && progress >= 1.0) {
+      final fillPaint = Paint()
+        ..color = fillColor!.withValues(alpha: 0.35)
+        ..style = PaintingStyle.fill;
+      _drawShape(canvas, size, fillPaint);
+    }
+
     final paint = Paint()
       ..color = strokeColor ?? DoodleColors.pencilDark
       ..strokeWidth = strokeWidth
@@ -31,6 +41,10 @@ class DoodlePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round;
 
+    _drawShape(canvas, size, paint);
+  }
+
+  void _drawShape(Canvas canvas, Size size, Paint paint) {
     switch (type) {
       case DoodleType.star:
         _drawStar(canvas, size, paint);
@@ -56,6 +70,12 @@ class DoodlePainter extends CustomPainter {
         _drawRocket(canvas, size, paint);
       case DoodleType.cat:
         _drawCat(canvas, size, paint);
+      case DoodleType.rainbowStar:
+        _drawRainbowStar(canvas, size, paint);
+      case DoodleType.crown:
+        _drawCrown(canvas, size, paint);
+      case DoodleType.diamond:
+        _drawDiamond(canvas, size, paint);
     }
   }
 
@@ -788,11 +808,196 @@ class DoodlePainter extends CustomPainter {
     }
   }
 
+  // ==================== Rare (희귀 낙서) ====================
+
+  /// 무지개 별 (5획: 별 외곽 5개 꼭짓점을 각각의 색으로)
+  void _drawRainbowStar(Canvas canvas, Size size, Paint paint) {
+    final strokes = _getStrokesToDraw(5);
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final outerR = size.width * 0.42;
+    final innerR = size.width * 0.18;
+
+    // 무지개 색상 (stroke 모드에서만 적용)
+    final rainbowColors = [
+      const Color(0xFFE57373), // 빨강
+      const Color(0xFFFFB74D), // 주황
+      const Color(0xFFFFF176), // 노랑
+      const Color(0xFF81C784), // 초록
+      const Color(0xFF64B5F6), // 파랑
+    ];
+
+    final points = <Offset>[];
+    for (int i = 0; i < 5; i++) {
+      final outerAngle = -math.pi / 2 + i * 2 * math.pi / 5;
+      final innerAngle = -math.pi / 2 + (i + 0.5) * 2 * math.pi / 5;
+      points.add(Offset(cx + outerR * math.cos(outerAngle), cy + outerR * math.sin(outerAngle)));
+      points.add(Offset(cx + innerR * math.cos(innerAngle), cy + innerR * math.sin(innerAngle)));
+    }
+
+    for (int i = 0; i < strokes && i < 5; i++) {
+      final p1 = points[i * 2];
+      final p2 = points[(i * 2 + 1) % 10];
+      final p3 = points[(i * 2 + 2) % 10];
+
+      final usePaint = paint.style == PaintingStyle.fill
+          ? paint
+          : (Paint()
+            ..color = rainbowColors[i]
+            ..strokeWidth = paint.strokeWidth
+            ..style = PaintingStyle.stroke
+            ..strokeCap = StrokeCap.round
+            ..strokeJoin = StrokeJoin.round);
+
+      final path = Path()
+        ..moveTo(p1.dx, p1.dy)
+        ..lineTo(p2.dx, p2.dy)
+        ..lineTo(p3.dx, p3.dy);
+      canvas.drawPath(path, usePaint);
+    }
+  }
+
+  /// 왕관 (6획: 밑단, 좌측 꼭짓점, 중앙 꼭짓점, 우측 꼭짓점, 보석 3개, 장식선)
+  void _drawCrown(Canvas canvas, Size size, Paint paint) {
+    final strokes = _getStrokesToDraw(6);
+    final cx = size.width / 2;
+
+    // 획 1: 왕관 밑단
+    if (strokes >= 1) {
+      final path = Path()
+        ..moveTo(size.width * 0.15, size.height * 0.7)
+        ..lineTo(size.width * 0.85, size.height * 0.7)
+        ..lineTo(size.width * 0.85, size.height * 0.8)
+        ..lineTo(size.width * 0.15, size.height * 0.8)
+        ..close();
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 2: 왼쪽 삼각 꼭짓점
+    if (strokes >= 2) {
+      final path = Path()
+        ..moveTo(size.width * 0.15, size.height * 0.7)
+        ..lineTo(size.width * 0.25, size.height * 0.25)
+        ..lineTo(size.width * 0.35, size.height * 0.5);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 3: 중앙 삼각 꼭짓점
+    if (strokes >= 3) {
+      final path = Path()
+        ..moveTo(size.width * 0.35, size.height * 0.5)
+        ..lineTo(cx, size.height * 0.15)
+        ..lineTo(size.width * 0.65, size.height * 0.5);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 4: 오른쪽 삼각 꼭짓점
+    if (strokes >= 4) {
+      final path = Path()
+        ..moveTo(size.width * 0.65, size.height * 0.5)
+        ..lineTo(size.width * 0.75, size.height * 0.25)
+        ..lineTo(size.width * 0.85, size.height * 0.7);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 5: 보석 3개 (꼭짓점 끝)
+    if (strokes >= 5) {
+      final gemR = size.width * 0.04;
+      canvas.drawCircle(Offset(size.width * 0.25, size.height * 0.22), gemR, paint);
+      canvas.drawCircle(Offset(cx, size.height * 0.12), gemR, paint);
+      canvas.drawCircle(Offset(size.width * 0.75, size.height * 0.22), gemR, paint);
+    }
+
+    // 획 6: 밑단 장식선
+    if (strokes >= 6) {
+      final path = Path()
+        ..moveTo(size.width * 0.2, size.height * 0.75)
+        ..lineTo(size.width * 0.8, size.height * 0.75);
+      canvas.drawPath(path, paint);
+      // 밑단 보석
+      canvas.drawCircle(Offset(cx, size.height * 0.75), size.width * 0.03, paint);
+    }
+  }
+
+  /// 다이아몬드 (7획: 상단 삼각, 하단 삼각, 좌측 면, 우측 면, 내부 수평선, 좌측 빛, 우측 빛)
+  void _drawDiamond(Canvas canvas, Size size, Paint paint) {
+    final strokes = _getStrokesToDraw(7);
+    final cx = size.width / 2;
+    final topY = size.height * 0.1;
+    final midY = size.height * 0.35;
+    final botY = size.height * 0.9;
+    final leftX = size.width * 0.1;
+    final rightX = size.width * 0.9;
+
+    // 획 1: 상단 사다리꼴 (위)
+    if (strokes >= 1) {
+      final path = Path()
+        ..moveTo(size.width * 0.3, topY)
+        ..lineTo(size.width * 0.7, topY)
+        ..lineTo(rightX, midY)
+        ..lineTo(leftX, midY)
+        ..close();
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 2: 하단 삼각형 (아래)
+    if (strokes >= 2) {
+      final path = Path()
+        ..moveTo(leftX, midY)
+        ..lineTo(cx, botY)
+        ..lineTo(rightX, midY);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 3: 왼쪽 내부 면
+    if (strokes >= 3) {
+      final path = Path()
+        ..moveTo(size.width * 0.3, topY)
+        ..lineTo(cx, midY)
+        ..lineTo(leftX, midY);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 4: 오른쪽 내부 면
+    if (strokes >= 4) {
+      final path = Path()
+        ..moveTo(size.width * 0.7, topY)
+        ..lineTo(cx, midY)
+        ..lineTo(rightX, midY);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 5: 중앙 수직선
+    if (strokes >= 5) {
+      final path = Path()
+        ..moveTo(cx, midY)
+        ..lineTo(cx, botY);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 6: 좌측 빛 반사
+    if (strokes >= 6) {
+      final path = Path()
+        ..moveTo(leftX, midY)
+        ..lineTo(size.width * 0.35, midY + (botY - midY) * 0.4);
+      canvas.drawPath(path, paint);
+    }
+
+    // 획 7: 우측 빛 반사
+    if (strokes >= 7) {
+      final path = Path()
+        ..moveTo(rightX, midY)
+        ..lineTo(size.width * 0.65, midY + (botY - midY) * 0.4);
+      canvas.drawPath(path, paint);
+    }
+  }
+
   @override
   bool shouldRepaint(covariant DoodlePainter oldDelegate) {
     return type != oldDelegate.type ||
         progress != oldDelegate.progress ||
         strokeColor != oldDelegate.strokeColor ||
-        strokeWidth != oldDelegate.strokeWidth;
+        strokeWidth != oldDelegate.strokeWidth ||
+        fillColor != oldDelegate.fillColor;
   }
 }

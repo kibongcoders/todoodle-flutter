@@ -15,12 +15,16 @@ class DoodleWidget extends StatelessWidget {
     this.size = 100,
     this.showLabel = true,
     this.strokeColor,
+    this.backgroundColor,
+    this.labelColor,
   });
 
   final Doodle doodle;
   final double size;
   final bool showLabel;
   final Color? strokeColor;
+  final Color? backgroundColor;
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +36,7 @@ class DoodleWidget extends StatelessWidget {
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: DoodleColors.paperWhite,
+            color: backgroundColor ?? DoodleColors.paperWhite,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: DoodleColors.paperGrid,
@@ -51,6 +55,7 @@ class DoodleWidget extends StatelessWidget {
               type: doodle.type,
               progress: doodle.progress,
               strokeColor: strokeColor ?? _getStrokeColor(),
+              fillColor: doodle.crayonColor,
             ),
           ),
         ),
@@ -62,16 +67,16 @@ class DoodleWidget extends StatelessWidget {
             doodle.typeName,
             style: TextStyle(
               fontSize: 12,
-              color: DoodleColors.pencilLight,
+              color: labelColor ?? DoodleColors.pencilLight,
               fontWeight: doodle.isCompleted ? FontWeight.w500 : FontWeight.normal,
             ),
           ),
           if (!doodle.isCompleted)
             Text(
               '${doodle.currentStroke}/${doodle.maxStrokes}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
-                color: DoodleColors.pencilLight,
+                color: labelColor ?? DoodleColors.pencilLight,
               ),
             ),
         ],
@@ -110,10 +115,15 @@ class AnimatedDoodleWidget extends StatefulWidget {
 }
 
 class _AnimatedDoodleWidgetState extends State<AnimatedDoodleWidget>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   double _previousProgress = 0;
+
+  // 완성 pop 애니메이션
+  late AnimationController _popController;
+  late Animation<double> _popAnimation;
+  bool _justCompleted = false;
 
   @override
   void initState() {
@@ -130,8 +140,27 @@ class _AnimatedDoodleWidgetState extends State<AnimatedDoodleWidget>
 
     _previousProgress = widget.doodle.progress;
 
+    // Pop 애니메이션 (1.0 → 1.15 → 0.95 → 1.0 바운스)
+    _popController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+
+    _popAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.15), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 1.15, end: 0.95), weight: 30),
+      TweenSequenceItem(tween: Tween(begin: 0.95, end: 1.0), weight: 40),
+    ]).animate(CurvedAnimation(
+      parent: _popController,
+      curve: Curves.easeOut,
+    ));
+
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
+        if (_justCompleted) {
+          _popController.forward(from: 0);
+          _justCompleted = false;
+        }
         widget.onAnimationComplete?.call();
       }
     });
@@ -142,6 +171,12 @@ class _AnimatedDoodleWidgetState extends State<AnimatedDoodleWidget>
     super.didUpdateWidget(oldWidget);
     if (widget.doodle.progress != oldWidget.doodle.progress) {
       _previousProgress = oldWidget.doodle.progress;
+
+      // 완성 감지 (progress가 1.0에 도달)
+      if (widget.doodle.progress >= 1.0 && oldWidget.doodle.progress < 1.0) {
+        _justCompleted = true;
+      }
+
       _controller.forward(from: 0);
     }
   }
@@ -149,60 +184,70 @@ class _AnimatedDoodleWidgetState extends State<AnimatedDoodleWidget>
   @override
   void dispose() {
     _controller.dispose();
+    _popController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _animation,
+      animation: Listenable.merge([_animation, _popAnimation]),
       builder: (context, child) {
         // 이전 진행률에서 현재 진행률까지 보간
         final currentProgress = _previousProgress +
             (_animation.value * (widget.doodle.progress - _previousProgress));
 
-        return Container(
-          width: widget.size,
-          height: widget.size,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: DoodleColors.paperCream,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: DoodleColors.paperGrid,
-              width: 2,
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: DoodleColors.paperShadow,
-                blurRadius: 8,
-                offset: Offset(2, 3),
+        final scale = _popController.isAnimating ? _popAnimation.value : 1.0;
+
+        return Transform.scale(
+          scale: scale,
+          child: Container(
+            width: widget.size,
+            height: widget.size,
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: DoodleColors.paperCream,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _popController.isAnimating
+                    ? DoodleColors.primary.withValues(alpha: 0.6)
+                    : DoodleColors.paperGrid,
+                width: _popController.isAnimating ? 2.5 : 2,
               ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: CustomPaint(
-                  size: Size(widget.size - 16, widget.size - 48),
-                  painter: DoodlePainter(
-                    type: widget.doodle.type,
-                    progress: currentProgress,
-                    strokeColor: DoodleColors.pencilDark,
-                    strokeWidth: 3,
+              boxShadow: [
+                BoxShadow(
+                  color: _popController.isAnimating
+                      ? DoodleColors.primary.withValues(alpha: 0.2)
+                      : DoodleColors.paperShadow,
+                  blurRadius: _popController.isAnimating ? 12 : 8,
+                  offset: const Offset(2, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: CustomPaint(
+                    size: Size(widget.size - 16, widget.size - 48),
+                    painter: DoodlePainter(
+                      type: widget.doodle.type,
+                      progress: currentProgress,
+                      strokeColor: DoodleColors.pencilDark,
+                      strokeWidth: 3,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                widget.doodle.statusDescription,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: DoodleColors.pencilDark,
+                const SizedBox(height: 4),
+                Text(
+                  widget.doodle.statusDescription,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: DoodleColors.pencilDark,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

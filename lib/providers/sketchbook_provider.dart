@@ -4,7 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
+import '../core/constants/sketchbook_theme.dart';
 import '../models/doodle.dart';
+import 'level_provider.dart';
 
 /// 스케치북 상태 관리 Provider
 ///
@@ -26,6 +28,12 @@ class SketchbookProvider extends ChangeNotifier {
 
   /// 낙서가 완성되었을 때 호출되는 콜백
   Function(int totalDoodlesCompleted)? onDoodleCompleted;
+
+  /// 레벨 Provider (희귀 낙서 해금용)
+  LevelProvider? _levelProvider;
+  void setLevelProvider(LevelProvider provider) {
+    _levelProvider = provider;
+  }
 
   // Getters
   Doodle? get currentDoodle => _currentDoodle;
@@ -60,6 +68,21 @@ class SketchbookProvider extends ChangeNotifier {
   int get currentStreak => _statsBox.get('currentStreak', defaultValue: 0);
   DateTime? get lastDrawDate => _statsBox.get('lastDrawDate');
 
+  /// 현재 스케치북 테마
+  SketchbookTheme get currentTheme {
+    final themeStr = _statsBox.get('sketchbook_theme', defaultValue: 'plain');
+    return SketchbookTheme.values.firstWhere(
+      (t) => t.name == themeStr,
+      orElse: () => SketchbookTheme.plain,
+    );
+  }
+
+  /// 테마 변경
+  Future<void> setTheme(SketchbookTheme theme) async {
+    await _statsBox.put('sketchbook_theme', theme.name);
+    notifyListeners();
+  }
+
   /// 초기화
   Future<void> init() async {
     _doodlesBox = await Hive.openBox<Doodle>(_doodlesBoxName);
@@ -87,10 +110,9 @@ class SketchbookProvider extends ChangeNotifier {
     }
   }
 
-  /// 새 낙서 시작 (랜덤 종류)
+  /// 새 낙서 시작 (랜덤 종류, 레벨에 따라 희귀 낙서 출현)
   void _startNewDoodle() {
-    const types = DoodleType.values;
-    final randomType = types[_random.nextInt(types.length)];
+    final randomType = _getRandomType();
 
     // 페이지와 위치 계산
     final (pageIndex, positionIndex) = _getNextPosition();
@@ -106,6 +128,30 @@ class SketchbookProvider extends ChangeNotifier {
     _doodlesBox.put(doodle.id, doodle);
     _statsBox.put(_currentDoodleKey, doodle.id);
     _currentDoodle = doodle;
+  }
+
+  /// 랜덤 낙서 타입 선택 (레벨에 따라 희귀 낙서 포함)
+  DoodleType _getRandomType() {
+    // 일반 낙서 타입 (12종)
+    final normalTypes = DoodleType.values
+        .where((t) => Doodle.requiredLevel(t) == null)
+        .toList();
+
+    // 레벨 기반 희귀 낙서 후보
+    final currentLevel = _levelProvider?.currentLevel ?? 1;
+    final eligibleRareTypes = DoodleType.values
+        .where((t) {
+          final req = Doodle.requiredLevel(t);
+          return req != null && currentLevel >= req;
+        })
+        .toList();
+
+    // 10% 확률로 희귀 낙서 선택
+    if (eligibleRareTypes.isNotEmpty && _random.nextDouble() < 0.1) {
+      return eligibleRareTypes[_random.nextInt(eligibleRareTypes.length)];
+    }
+
+    return normalTypes[_random.nextInt(normalTypes.length)];
   }
 
   /// 다음 낙서 위치 계산 (페이지, 위치 인덱스)
@@ -186,6 +232,30 @@ class SketchbookProvider extends ChangeNotifier {
     }
 
     await _statsBox.put('lastDrawDate', now);
+  }
+
+  /// 낙서에 크레파스 색상 적용
+  Future<void> colorDoodle(String doodleId, int? colorIndex) async {
+    final doodle = _doodlesBox.get(doodleId);
+    if (doodle == null || !doodle.isCompleted) return;
+    doodle.colorIndex = colorIndex;
+    await doodle.save();
+    notifyListeners();
+  }
+
+  /// 해금된 낙서 타입 목록
+  Set<DoodleType> get unlockedTypes {
+    return completedDoodles.map((d) => d.type).toSet();
+  }
+
+  /// 해금된 타입 수
+  int get totalUnlockedTypes => unlockedTypes.length;
+
+  /// 특정 타입의 가장 최근 완성 낙서
+  Doodle? getLatestDoodleOfType(DoodleType type) {
+    final doodles = completedDoodles.where((d) => d.type == type).toList();
+    if (doodles.isEmpty) return null;
+    return doodles.last;
   }
 
   // 카테고리별 완성 낙서 수

@@ -14,6 +14,7 @@ import 'features/statistics/presentation/providers/statistics_provider.dart';
 import 'providers/achievement_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/focus_provider.dart';
+import 'providers/level_provider.dart';
 import 'providers/settings_provider.dart';
 import 'providers/sketchbook_provider.dart';
 import 'providers/template_provider.dart';
@@ -78,6 +79,13 @@ void main() async {
   final achievementProvider = AchievementProvider();
   await achievementProvider.init();
 
+  // 레벨 Provider 초기화
+  final levelProvider = LevelProvider();
+  await levelProvider.init();
+
+  // 스케치북에 레벨 Provider 연결 (희귀 낙서 해금용)
+  sketchbookProvider.setLevelProvider(levelProvider);
+
   // 낙서 완성 시 업적 체크 연결
   sketchbookProvider.onDoodleCompleted = (totalDoodlesCompleted) {
     achievementProvider.onDoodleCompleted(totalDoodlesCompleted: totalDoodlesCompleted);
@@ -90,6 +98,7 @@ void main() async {
     focusProvider: focusProvider,
     templateProvider: templateProvider,
     achievementProvider: achievementProvider,
+    levelProvider: levelProvider,
   ));
 }
 
@@ -102,6 +111,7 @@ class MyApp extends StatelessWidget {
     required this.focusProvider,
     required this.templateProvider,
     required this.achievementProvider,
+    required this.levelProvider,
   });
 
   final CategoryProvider categoryProvider;
@@ -110,6 +120,7 @@ class MyApp extends StatelessWidget {
   final FocusProvider focusProvider;
   final TemplateProvider templateProvider;
   final AchievementProvider achievementProvider;
+  final LevelProvider levelProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +131,7 @@ class MyApp extends StatelessWidget {
           todoProvider.setSettingsProvider(settingsProvider);
           todoProvider.setSketchbookProvider(sketchbookProvider);
           todoProvider.setAchievementProvider(achievementProvider);
+          todoProvider.setLevelProvider(levelProvider);
 
           // 포모도로 세션 완료 시 할일의 실제 시간 업데이트 및 업적 체크
           focusProvider.onWorkSessionComplete = (todoId, minutes) {
@@ -140,6 +152,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: focusProvider),
         ChangeNotifierProvider.value(value: templateProvider),
         ChangeNotifierProvider.value(value: achievementProvider),
+        ChangeNotifierProvider.value(value: levelProvider),
         // 통계 Provider (다른 Provider들에 의존)
         ProxyProvider5<TodoProvider, FocusProvider, SketchbookProvider,
             AchievementProvider, CategoryProvider, StatisticsProvider>(

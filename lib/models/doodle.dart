@@ -1,4 +1,8 @@
+import 'dart:ui' show Color;
+
 import 'package:hive/hive.dart';
+
+import '../core/constants/doodle_colors.dart';
 
 part 'doodle.g.dart';
 
@@ -13,6 +17,9 @@ enum DoodleCategory {
 
   @HiveField(2)
   complex, // 8획 - 복잡한 그림
+
+  @HiveField(3)
+  rare, // 희귀 낙서 (레벨 해금)
 }
 
 /// 낙서 종류
@@ -56,6 +63,16 @@ enum DoodleType {
 
   @HiveField(11)
   cat, // 고양이
+
+  // Rare (희귀 - 레벨 해금)
+  @HiveField(12)
+  rainbowStar, // 무지개 별 (레벨 10)
+
+  @HiveField(13)
+  crown, // 왕관 (레벨 20)
+
+  @HiveField(14)
+  diamond, // 다이아몬드 (레벨 30)
 }
 
 /// 스케치북의 낙서 모델
@@ -70,6 +87,7 @@ class Doodle extends HiveObject {
     this.isCompleted = false,
     required this.pageIndex,
     this.positionIndex = 0,
+    this.colorIndex,
   });
 
   @HiveField(0)
@@ -96,6 +114,13 @@ class Doodle extends HiveObject {
   @HiveField(7)
   int positionIndex; // 페이지 내 위치 (0-3, 한 페이지에 4개)
 
+  @HiveField(8)
+  int? colorIndex; // 크레파스 색상 인덱스 (null = 기본 연필)
+
+  /// 크레파스 색상 반환 (null이면 기본 연필색)
+  Color? get crayonColor =>
+      colorIndex != null ? DoodleColors.crayonPalette[colorIndex!] : null;
+
   /// 낙서 카테고리 반환
   DoodleCategory get category {
     switch (type) {
@@ -114,17 +139,35 @@ class Doodle extends HiveObject {
       case DoodleType.rocket:
       case DoodleType.cat:
         return DoodleCategory.complex;
+      case DoodleType.rainbowStar:
+      case DoodleType.crown:
+      case DoodleType.diamond:
+        return DoodleCategory.rare;
     }
   }
 
-  /// 최대 획 수 (카테고리별)
+  /// 최대 획 수 (타입별)
   int get maxStrokes {
-    switch (category) {
-      case DoodleCategory.simple:
+    switch (type) {
+      case DoodleType.star:
+      case DoodleType.heart:
+      case DoodleType.cloud:
+      case DoodleType.moon:
         return 3;
-      case DoodleCategory.medium:
+      case DoodleType.house:
+      case DoodleType.flower:
+      case DoodleType.boat:
+      case DoodleType.balloon:
+      case DoodleType.rainbowStar:
         return 5;
-      case DoodleCategory.complex:
+      case DoodleType.crown:
+        return 6;
+      case DoodleType.diamond:
+        return 7;
+      case DoodleType.tree:
+      case DoodleType.bicycle:
+      case DoodleType.rocket:
+      case DoodleType.cat:
         return 8;
     }
   }
@@ -159,6 +202,12 @@ class Doodle extends HiveObject {
         return '로켓';
       case DoodleType.cat:
         return '고양이';
+      case DoodleType.rainbowStar:
+        return '무지개 별';
+      case DoodleType.crown:
+        return '왕관';
+      case DoodleType.diamond:
+        return '다이아몬드';
     }
   }
 
@@ -171,6 +220,25 @@ class Doodle extends HiveObject {
         return '보통';
       case DoodleCategory.complex:
         return '복잡';
+      case DoodleCategory.rare:
+        return '희귀';
+    }
+  }
+
+  /// 희귀 낙서 여부
+  bool get isRare => category == DoodleCategory.rare;
+
+  /// 희귀 낙서 해금에 필요한 레벨 (일반 낙서는 null)
+  static int? requiredLevel(DoodleType type) {
+    switch (type) {
+      case DoodleType.rainbowStar:
+        return 10;
+      case DoodleType.crown:
+        return 20;
+      case DoodleType.diamond:
+        return 30;
+      default:
+        return null;
     }
   }
 
@@ -203,17 +271,35 @@ extension DoodleTypeExtension on DoodleType {
       case DoodleType.rocket:
       case DoodleType.cat:
         return DoodleCategory.complex;
+      case DoodleType.rainbowStar:
+      case DoodleType.crown:
+      case DoodleType.diamond:
+        return DoodleCategory.rare;
     }
   }
 
   /// 최대 획 수
   int get maxStrokes {
-    switch (category) {
-      case DoodleCategory.simple:
+    switch (this) {
+      case DoodleType.star:
+      case DoodleType.heart:
+      case DoodleType.cloud:
+      case DoodleType.moon:
         return 3;
-      case DoodleCategory.medium:
+      case DoodleType.house:
+      case DoodleType.flower:
+      case DoodleType.boat:
+      case DoodleType.balloon:
+      case DoodleType.rainbowStar:
         return 5;
-      case DoodleCategory.complex:
+      case DoodleType.crown:
+        return 6;
+      case DoodleType.diamond:
+        return 7;
+      case DoodleType.tree:
+      case DoodleType.bicycle:
+      case DoodleType.rocket:
+      case DoodleType.cat:
         return 8;
     }
   }

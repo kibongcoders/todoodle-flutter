@@ -86,6 +86,17 @@ class DoodleColors {
   /// 색연필 갈색
   static const crayonBrown = Color(0xFFA1887F);
 
+  /// 크레파스 색상 팔레트 (색칠용)
+  static const List<Color> crayonPalette = [
+    crayonRed,
+    crayonOrange,
+    crayonYellow,
+    crayonGreen,
+    crayonBlue,
+    crayonPurple,
+    crayonBrown,
+  ];
+
   // ============================================
   // Post-it Note Colors (포스트잇 컬러)
   // ============================================
