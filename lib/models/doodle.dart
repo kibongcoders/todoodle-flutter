@@ -121,126 +121,23 @@ class Doodle extends HiveObject {
   Color? get crayonColor =>
       colorIndex != null ? DoodleColors.crayonPalette[colorIndex!] : null;
 
-  /// 낙서 카테고리 반환
-  DoodleCategory get category {
-    switch (type) {
-      case DoodleType.star:
-      case DoodleType.heart:
-      case DoodleType.cloud:
-      case DoodleType.moon:
-        return DoodleCategory.simple;
-      case DoodleType.house:
-      case DoodleType.flower:
-      case DoodleType.boat:
-      case DoodleType.balloon:
-        return DoodleCategory.medium;
-      case DoodleType.tree:
-      case DoodleType.bicycle:
-      case DoodleType.rocket:
-      case DoodleType.cat:
-        return DoodleCategory.complex;
-      case DoodleType.rainbowStar:
-      case DoodleType.crown:
-      case DoodleType.diamond:
-        return DoodleCategory.rare;
-    }
-  }
+  /// 낙서 카테고리 반환 (DoodleTypeExtension에 위임)
+  DoodleCategory get category => type.category;
 
-  /// 최대 획 수 (타입별)
-  int get maxStrokes {
-    switch (type) {
-      case DoodleType.star:
-      case DoodleType.heart:
-      case DoodleType.cloud:
-      case DoodleType.moon:
-        return 3;
-      case DoodleType.house:
-      case DoodleType.flower:
-      case DoodleType.boat:
-      case DoodleType.balloon:
-      case DoodleType.rainbowStar:
-        return 5;
-      case DoodleType.crown:
-        return 6;
-      case DoodleType.diamond:
-        return 7;
-      case DoodleType.tree:
-      case DoodleType.bicycle:
-      case DoodleType.rocket:
-      case DoodleType.cat:
-        return 8;
-    }
-  }
+  /// 최대 획 수 (DoodleTypeExtension에 위임)
+  int get maxStrokes => type.maxStrokes;
 
   /// 진행률 (0.0 ~ 1.0)
   double get progress => currentStroke / maxStrokes;
 
-  /// 낙서 타입 한글 이름
-  String get typeName {
-    switch (type) {
-      case DoodleType.star:
-        return '별';
-      case DoodleType.heart:
-        return '하트';
-      case DoodleType.cloud:
-        return '구름';
-      case DoodleType.moon:
-        return '달';
-      case DoodleType.house:
-        return '집';
-      case DoodleType.flower:
-        return '꽃';
-      case DoodleType.boat:
-        return '배';
-      case DoodleType.balloon:
-        return '풍선';
-      case DoodleType.tree:
-        return '나무';
-      case DoodleType.bicycle:
-        return '자전거';
-      case DoodleType.rocket:
-        return '로켓';
-      case DoodleType.cat:
-        return '고양이';
-      case DoodleType.rainbowStar:
-        return '무지개 별';
-      case DoodleType.crown:
-        return '왕관';
-      case DoodleType.diamond:
-        return '다이아몬드';
-    }
-  }
+  /// 낙서 타입 한글 이름 (DoodleTypeExtension에 위임)
+  String get typeName => type.typeName;
 
-  /// 카테고리 한글 이름
-  String get categoryName {
-    switch (category) {
-      case DoodleCategory.simple:
-        return '간단';
-      case DoodleCategory.medium:
-        return '보통';
-      case DoodleCategory.complex:
-        return '복잡';
-      case DoodleCategory.rare:
-        return '희귀';
-    }
-  }
+  /// 카테고리 한글 이름 (DoodleCategoryExtension에 위임)
+  String get categoryName => category.displayName;
 
   /// 희귀 낙서 여부
-  bool get isRare => category == DoodleCategory.rare;
-
-  /// 희귀 낙서 해금에 필요한 레벨 (일반 낙서는 null)
-  static int? requiredLevel(DoodleType type) {
-    switch (type) {
-      case DoodleType.rainbowStar:
-        return 10;
-      case DoodleType.crown:
-        return 20;
-      case DoodleType.diamond:
-        return 30;
-      default:
-        return null;
-    }
-  }
+  bool get isRare => type.isRare;
 
   /// 현재 상태 설명
   String get statusDescription {
@@ -251,7 +148,24 @@ class Doodle extends HiveObject {
   }
 }
 
-/// DoodleType 확장 메서드
+/// DoodleCategory 확장 메서드
+extension DoodleCategoryExtension on DoodleCategory {
+  /// 카테고리 한글 이름
+  String get displayName {
+    switch (this) {
+      case DoodleCategory.simple:
+        return '간단';
+      case DoodleCategory.medium:
+        return '보통';
+      case DoodleCategory.complex:
+        return '복잡';
+      case DoodleCategory.rare:
+        return '희귀';
+    }
+  }
+}
+
+/// DoodleType 확장 메서드 (단일 소스)
 extension DoodleTypeExtension on DoodleType {
   /// 해당 타입의 카테고리 반환
   DoodleCategory get category {
@@ -301,6 +215,62 @@ extension DoodleTypeExtension on DoodleType {
       case DoodleType.rocket:
       case DoodleType.cat:
         return 8;
+    }
+  }
+
+  /// 낙서 타입 한글 이름
+  String get typeName {
+    switch (this) {
+      case DoodleType.star:
+        return '별';
+      case DoodleType.heart:
+        return '하트';
+      case DoodleType.cloud:
+        return '구름';
+      case DoodleType.moon:
+        return '달';
+      case DoodleType.house:
+        return '집';
+      case DoodleType.flower:
+        return '꽃';
+      case DoodleType.boat:
+        return '배';
+      case DoodleType.balloon:
+        return '풍선';
+      case DoodleType.tree:
+        return '나무';
+      case DoodleType.bicycle:
+        return '자전거';
+      case DoodleType.rocket:
+        return '로켓';
+      case DoodleType.cat:
+        return '고양이';
+      case DoodleType.rainbowStar:
+        return '무지개 별';
+      case DoodleType.crown:
+        return '왕관';
+      case DoodleType.diamond:
+        return '다이아몬드';
+    }
+  }
+
+  /// 카테고리 한글 이름
+  String get categoryName => category.displayName;
+
+  /// 희귀 낙서 여부
+  bool get isRare => category == DoodleCategory.rare;
+
+  /// 희귀 낙서 해금에 필요한 레벨 (일반 낙서는 null)
+  int? get requiredLevel {
+    switch (this) {
+      case DoodleType.rainbowStar:
+        return 10;
+      case DoodleType.crown:
+        return 20;
+      case DoodleType.diamond:
+        return 30;
+      default:
+        return null;
     }
   }
 }

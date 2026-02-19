@@ -134,14 +134,14 @@ class SketchbookProvider extends ChangeNotifier {
   DoodleType _getRandomType() {
     // 일반 낙서 타입 (12종)
     final normalTypes = DoodleType.values
-        .where((t) => Doodle.requiredLevel(t) == null)
+        .where((t) => t.requiredLevel == null)
         .toList();
 
     // 레벨 기반 희귀 낙서 후보
     final currentLevel = _levelProvider?.currentLevel ?? 1;
     final eligibleRareTypes = DoodleType.values
         .where((t) {
-          final req = Doodle.requiredLevel(t);
+          final req = t.requiredLevel;
           return req != null && currentLevel >= req;
         })
         .toList();
@@ -259,17 +259,12 @@ class SketchbookProvider extends ChangeNotifier {
   }
 
   // 카테고리별 완성 낙서 수
-  int get simpleCount => completedDoodles
-      .where((d) => d.category == DoodleCategory.simple)
-      .length;
+  int getCountByCategory(DoodleCategory cat) =>
+      completedDoodles.where((d) => d.category == cat).length;
 
-  int get mediumCount => completedDoodles
-      .where((d) => d.category == DoodleCategory.medium)
-      .length;
-
-  int get complexCount => completedDoodles
-      .where((d) => d.category == DoodleCategory.complex)
-      .length;
+  int get simpleCount => getCountByCategory(DoodleCategory.simple);
+  int get mediumCount => getCountByCategory(DoodleCategory.medium);
+  int get complexCount => getCountByCategory(DoodleCategory.complex);
 
   // 타입별 완성 낙서 수
   int getCountByType(DoodleType type) =>

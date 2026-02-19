@@ -27,10 +27,10 @@ class DoodleCollectionScreen extends StatelessWidget {
         builder: (context, sketchbook, level, _) {
           final unlocked = sketchbook.unlockedTypes;
           final normalTypes = DoodleType.values
-              .where((t) => Doodle.requiredLevel(t) == null)
+              .where((t) => t.requiredLevel == null)
               .toList();
           final rareTypes = DoodleType.values
-              .where((t) => Doodle.requiredLevel(t) != null)
+              .where((t) => t.requiredLevel != null)
               .toList();
           final totalTypes = DoodleType.values.length;
 
@@ -189,7 +189,7 @@ class DoodleCollectionScreen extends StatelessWidget {
         final isUnlocked = unlocked.contains(type);
         final count = sketchbook.getCountByType(type);
         final latest = sketchbook.getLatestDoodleOfType(type);
-        final reqLevel = Doodle.requiredLevel(type);
+        final reqLevel = type.requiredLevel;
         final canUnlock = reqLevel != null && level.currentLevel >= reqLevel;
         return _buildCollectionCard(
           type: type,
@@ -213,8 +213,7 @@ class DoodleCollectionScreen extends StatelessWidget {
     int? requiredLevel,
     bool canUnlock = true,
   }) {
-    // 한글 이름 (Doodle 모델의 typeName 재현)
-    final name = _typeNameOf(type);
+    final name = type.typeName;
     const size = 80.0;
 
     return Container(
@@ -311,38 +310,4 @@ class DoodleCollectionScreen extends StatelessWidget {
     );
   }
 
-  String _typeNameOf(DoodleType type) {
-    switch (type) {
-      case DoodleType.star:
-        return '별';
-      case DoodleType.heart:
-        return '하트';
-      case DoodleType.cloud:
-        return '구름';
-      case DoodleType.moon:
-        return '달';
-      case DoodleType.house:
-        return '집';
-      case DoodleType.flower:
-        return '꽃';
-      case DoodleType.boat:
-        return '배';
-      case DoodleType.balloon:
-        return '풍선';
-      case DoodleType.tree:
-        return '나무';
-      case DoodleType.bicycle:
-        return '자전거';
-      case DoodleType.rocket:
-        return '로켓';
-      case DoodleType.cat:
-        return '고양이';
-      case DoodleType.rainbowStar:
-        return '무지개 별';
-      case DoodleType.crown:
-        return '왕관';
-      case DoodleType.diamond:
-        return '다이아몬드';
-    }
-  }
 }
