@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class ArchiveScreen extends StatelessWidget {
   const ArchiveScreen({super.key});
@@ -68,7 +69,7 @@ class ArchiveScreen extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
                   color: Colors.red[400],
-                  child: const Icon(Icons.delete_forever, color: Colors.white),
+                  child: const DoodleIcon(type: DoodleIconType.delete, color: Colors.white),
                 ),
                 confirmDismiss: (direction) async {
                   return await showDialog<bool>(
@@ -112,7 +113,7 @@ class ArchiveScreen extends StatelessWidget {
                         )
                       : null,
                   trailing: IconButton(
-                    icon: const Icon(Icons.unarchive, color: Color(0xFF2E7D32)),
+                    icon: const DoodleIcon(type: DoodleIconType.restore, color: Color(0xFF2E7D32)),
                     onPressed: () {
                       todoProvider.unarchiveTodo(todo.id);
                       ScaffoldMessenger.of(context).showSnackBar(

@@ -6,6 +6,7 @@ import '../core/constants/doodle_typography.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../widgets/doodle_chip.dart';
 
 class TodoFormScreen extends StatefulWidget {
@@ -452,7 +453,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded),
+                    icon: const DoodleIcon(type: DoodleIconType.close),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -473,7 +474,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
+          icon: const DoodleIcon(type: DoodleIconType.arrowBack),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -1032,8 +1033,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                 ),
               ),
             ),
-            const Icon(
-              Icons.chevron_right_rounded,
+            const DoodleIcon(
+              type: DoodleIconType.chevronRight,
               color: DoodleColors.pencilLight,
               size: 20,
             ),
@@ -1085,8 +1086,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                 color: DoodleColors.primaryLight.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(4),
               ),
-              child: const Icon(
-                Icons.add_rounded,
+              child: const DoodleIcon(
+                type: DoodleIconType.add,
                 color: DoodleColors.primary,
                 size: 20,
               ),
@@ -1144,8 +1145,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                       color: DoodleColors.paperCream,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Icon(
-                      Icons.close_rounded,
+                    child: const DoodleIcon(
+                      type: DoodleIconType.close,
                       color: DoodleColors.pencilLight,
                       size: 18,
                     ),
@@ -1184,7 +1185,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                     : '직접 입력',
                 isSelected: _estimatedMinutes != null &&
                     ![15, 30, 60, 120].contains(_estimatedMinutes),
-                icon: Icons.edit_outlined,
+                doodleIconType: DoodleIconType.edit,
                 selectedColor: DoodleColors.highlightPurple,
                 onTap: () => _showTimeInputDialog(),
               ),
@@ -1266,7 +1267,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                         setDialogState(() => hours++);
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_up),
+                    icon: const DoodleIcon(type: DoodleIconType.arrowUp),
                   ),
                   Text(
                     '$hours',
@@ -1283,7 +1284,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                         setDialogState(() => hours--);
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_down),
+                    icon: const DoodleIcon(type: DoodleIconType.arrowDown),
                   ),
                 ],
               ),
@@ -1298,7 +1299,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                         setDialogState(() => mins += 5);
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_up),
+                    icon: const DoodleIcon(type: DoodleIconType.arrowUp),
                   ),
                   Text(
                     mins.toString().padLeft(2, '0'),
@@ -1315,7 +1316,7 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                         setDialogState(() => mins -= 5);
                       }
                     },
-                    icon: const Icon(Icons.keyboard_arrow_down),
+                    icon: const DoodleIcon(type: DoodleIconType.arrowDown),
                   ),
                 ],
               ),
@@ -1393,8 +1394,8 @@ class _TodoFormScreenState extends State<TodoFormScreen> with TickerProviderStat
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Icon(
-                          Icons.close_rounded,
+                        const DoodleIcon(
+                          type: DoodleIconType.close,
                           size: 14,
                           color: DoodleColors.pencilDark,
                         ),

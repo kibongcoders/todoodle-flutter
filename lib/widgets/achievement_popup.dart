@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/achievement.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 /// 업적 획득 팝업을 표시합니다 (큐 지원)
 class AchievementPopup {
@@ -239,9 +240,9 @@ class _AchievementPopupWidgetState extends State<_AchievementPopupWidget>
                       // 닫기 버튼
                       IconButton(
                         onPressed: _dismiss,
-                        icon: Icon(
-                          Icons.close,
-                          color: Colors.brown[300],
+                        icon: DoodleIcon(
+                          type: DoodleIconType.close,
+                          color: Colors.brown[300]!,
                           size: 20,
                         ),
                       ),

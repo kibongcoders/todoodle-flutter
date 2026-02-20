@@ -10,6 +10,7 @@ import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
 import '../screens/todo_form_screen.dart';
 import '../shared/widgets/doodle_checkbox.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class TodoListItem extends StatefulWidget {
   const TodoListItem({
@@ -309,8 +310,8 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
                             child: AnimatedRotation(
                               turns: _isExpanded ? 0.25 : 0,
                               duration: const Duration(milliseconds: 200),
-                              child: Icon(
-                                Icons.chevron_right_rounded,
+                              child: DoodleIcon(
+                                type: DoodleIconType.chevronRight,
                                 color: widget.todo.isCompleted
                                     ? DoodleColors.pencilLight
                                     : DoodleColors.pencilDark,
@@ -611,9 +612,9 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
     final color = isComplete
         ? (widget.todo.isCompleted ? DoodleColors.crayonOrange : DoodleColors.crayonGreen)
         : DoodleColors.crayonRed;
-    final icon = isComplete
-        ? (widget.todo.isCompleted ? Icons.replay_rounded : Icons.check_rounded)
-        : Icons.delete_rounded;
+    final iconType = isComplete
+        ? (widget.todo.isCompleted ? DoodleIconType.restore : DoodleIconType.check)
+        : DoodleIconType.delete;
     final text = isComplete
         ? (widget.todo.isCompleted ? '미완료' : '완료!')
         : '삭제';
@@ -645,7 +646,7 @@ class _TodoListItemState extends State<TodoListItem> with SingleTickerProviderSt
             ),
             const SizedBox(width: 8),
           ],
-          Icon(icon, color: color, size: 28),
+          DoodleIcon(type: iconType, color: color, size: 28),
           if (isComplete) ...[
             const SizedBox(width: 8),
             Text(

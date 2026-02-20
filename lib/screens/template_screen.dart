@@ -6,6 +6,7 @@ import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/template_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class TemplateScreen extends StatelessWidget {
   const TemplateScreen({super.key});
@@ -266,7 +267,7 @@ class TemplateScreen extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline),
+                    icon: const DoodleIcon(type: DoodleIconType.delete),
                     color: Colors.red[400],
                     onPressed: () {
                       Navigator.pop(context);
@@ -606,7 +607,7 @@ class TemplateScreen extends StatelessWidget {
                                 setState(() => items.add(item));
                               }
                             },
-                            icon: const Icon(Icons.add, size: 18),
+                            icon: const DoodleIcon(type: DoodleIconType.add, size: 18),
                             label: const Text('추가'),
                           ),
                         ],
@@ -641,10 +642,10 @@ class TemplateScreen extends StatelessWidget {
                             final item = items[index];
                             return ListTile(
                               key: ValueKey(index),
-                              leading: const Icon(Icons.drag_handle),
+                              leading: const DoodleIcon(type: DoodleIconType.dragHandle),
                               title: Text(item.title),
                               trailing: IconButton(
-                                icon: const Icon(Icons.close),
+                                icon: const DoodleIcon(type: DoodleIconType.close),
                                 onPressed: () {
                                   setState(() => items.removeAt(index));
                                 },

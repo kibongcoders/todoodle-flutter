@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/category.dart';
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({super.key});
@@ -18,7 +19,7 @@ class CategoryScreen extends StatelessWidget {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded),
+          icon: const DoodleIcon(type: DoodleIconType.arrowBack),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -67,7 +68,7 @@ class CategoryScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: const Icon(Icons.add_rounded, color: Color(0xFF2E7D32), size: 28),
+        child: const DoodleIcon(type: DoodleIconType.add, color: Color(0xFF2E7D32), size: 28),
       ),
     );
   }
@@ -119,12 +120,12 @@ class _CategoryItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit_rounded, color: Color(0xFF2E7D32)),
+              icon: const DoodleIcon(type: DoodleIconType.edit, color: Color(0xFF2E7D32)),
               onPressed: () => _showEditDialog(context),
             ),
             if (canDelete)
               IconButton(
-                icon: const Icon(Icons.delete_rounded, color: Colors.red),
+                icon: const DoodleIcon(type: DoodleIconType.delete, color: Colors.red),
                 onPressed: () => _showDeleteConfirmation(context),
               ),
           ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 /// Doodle 스타일의 선택 칩
 ///
@@ -108,6 +109,7 @@ class DoodleIconChip extends StatelessWidget {
     required this.label,
     required this.isSelected,
     this.icon,
+    this.doodleIconType,
     this.emoji,
     this.onTap,
     this.selectedColor,
@@ -117,6 +119,7 @@ class DoodleIconChip extends StatelessWidget {
   final String label;
   final bool isSelected;
   final IconData? icon;
+  final DoodleIconType? doodleIconType;
   final String? emoji;
   final VoidCallback? onTap;
   final Color? selectedColor;
@@ -128,6 +131,12 @@ class DoodleIconChip extends StatelessWidget {
 
     if (emoji != null) {
       avatar = Text(emoji!, style: const TextStyle(fontSize: 16));
+    } else if (doodleIconType != null) {
+      avatar = DoodleIcon(
+        type: doodleIconType!,
+        size: 18,
+        color: isSelected ? DoodleColors.pencilDark : DoodleColors.pencilLight,
+      );
     } else if (icon != null) {
       avatar = Icon(
         icon,
@@ -473,16 +482,16 @@ class DoodleDateTimeRow extends StatelessWidget {
                 onTap: onClear,
                 child: const Padding(
                   padding: EdgeInsets.all(4),
-                  child: Icon(
-                    Icons.close,
+                  child: DoodleIcon(
+                    type: DoodleIconType.close,
                     size: 18,
                     color: DoodleColors.pencilLight,
                   ),
                 ),
               )
             else
-              const Icon(
-                Icons.chevron_right,
+              const DoodleIcon(
+                type: DoodleIconType.chevronRight,
                 size: 20,
                 color: DoodleColors.pencilLight,
               ),

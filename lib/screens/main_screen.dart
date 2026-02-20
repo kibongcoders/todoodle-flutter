@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
 import '../providers/achievement_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../providers/level_provider.dart';
 import '../widgets/achievement_popup.dart';
 import '../services/sound_service.dart';
@@ -87,27 +88,27 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 _buildNavItem(
                   index: 0,
-                  icon: Icons.home_rounded,
+                  iconType: DoodleIconType.home,
                   label: '홈',
                 ),
                 _buildNavItem(
                   index: 1,
-                  icon: Icons.calendar_month_rounded,
+                  iconType: DoodleIconType.calendar,
                   label: '캘린더',
                 ),
                 _buildNavItem(
                   index: 2,
-                  icon: Icons.timer_rounded,
+                  iconType: DoodleIconType.timer,
                   label: '집중',
                 ),
                 _buildNavItem(
                   index: 3,
-                  icon: Icons.local_fire_department_rounded,
+                  iconType: DoodleIconType.fire,
                   label: '습관',
                 ),
                 _buildNavItem(
                   index: 4,
-                  icon: Icons.settings_rounded,
+                  iconType: DoodleIconType.settings,
                   label: '설정',
                 ),
               ],
@@ -120,10 +121,11 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem({
     required int index,
-    required IconData icon,
+    required DoodleIconType iconType,
     required String label,
   }) {
     final isSelected = _currentIndex == index;
+    final iconColor = isSelected ? DoodleColors.primary : DoodleColors.pencilLight;
 
     return GestureDetector(
       onTap: () => setState(() => _currentIndex = index),
@@ -146,9 +148,9 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: isSelected ? DoodleColors.primary : DoodleColors.pencilLight,
+            DoodleIcon(
+              type: iconType,
+              color: iconColor,
               size: 24,
             ),
             if (isSelected) ...[

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/focus_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class FocusScreen extends StatefulWidget {
   const FocusScreen({super.key});
@@ -44,7 +45,7 @@ class _FocusScreenState extends State<FocusScreen>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings_outlined),
+            icon: const DoodleIcon(type: DoodleIconType.settings),
             onPressed: () => _showSettingsDialog(context),
           ),
         ],
@@ -185,7 +186,7 @@ class _FocusScreenState extends State<FocusScreen>
               if (focusProvider.isIdle) ...[
                 // 시작 버튼
                 _buildControlButton(
-                  icon: Icons.play_arrow_rounded,
+                  iconType: DoodleIconType.play,
                   label: '시작',
                   color: const Color(0xFF2E7D32),
                   onTap: () => _startPomodoro(context, focusProvider),
@@ -193,7 +194,7 @@ class _FocusScreenState extends State<FocusScreen>
               ] else if (isRunning) ...[
                 // 일시정지 버튼
                 _buildControlButton(
-                  icon: Icons.pause_rounded,
+                  iconType: DoodleIconType.pause,
                   label: '일시정지',
                   color: const Color(0xFFFFA726),
                   onTap: focusProvider.pausePomodoro,
@@ -201,7 +202,7 @@ class _FocusScreenState extends State<FocusScreen>
                 const SizedBox(width: 16),
                 // 중단 버튼
                 _buildControlButton(
-                  icon: Icons.stop_rounded,
+                  iconType: DoodleIconType.stop,
                   label: '중단',
                   color: const Color(0xFFE53935),
                   onTap: focusProvider.stopPomodoro,
@@ -210,7 +211,7 @@ class _FocusScreenState extends State<FocusScreen>
               ] else if (isPaused) ...[
                 // 재개 버튼
                 _buildControlButton(
-                  icon: Icons.play_arrow_rounded,
+                  iconType: DoodleIconType.play,
                   label: '재개',
                   color: const Color(0xFF2E7D32),
                   onTap: focusProvider.resumePomodoro,
@@ -218,7 +219,7 @@ class _FocusScreenState extends State<FocusScreen>
                 const SizedBox(width: 16),
                 // 중단 버튼
                 _buildControlButton(
-                  icon: Icons.stop_rounded,
+                  iconType: DoodleIconType.stop,
                   label: '중단',
                   color: const Color(0xFFE53935),
                   onTap: focusProvider.stopPomodoro,
@@ -227,7 +228,7 @@ class _FocusScreenState extends State<FocusScreen>
               ] else if (isBreak) ...[
                 // 휴식 건너뛰기
                 _buildControlButton(
-                  icon: Icons.skip_next_rounded,
+                  iconType: DoodleIconType.skipNext,
                   label: '건너뛰기',
                   color: const Color(0xFF1976D2),
                   onTap: focusProvider.skipBreak,
@@ -241,7 +242,7 @@ class _FocusScreenState extends State<FocusScreen>
   }
 
   Widget _buildControlButton({
-    required IconData icon,
+    required DoodleIconType iconType,
     required String label,
     required Color color,
     required VoidCallback onTap,
@@ -267,7 +268,7 @@ class _FocusScreenState extends State<FocusScreen>
         ),
         child: Row(
           children: [
-            Icon(icon, color: isOutlined ? color : Colors.white),
+            DoodleIcon(type: iconType, color: isOutlined ? color : Colors.white),
             const SizedBox(width: 8),
             Text(
               label,
@@ -335,7 +336,7 @@ class _FocusScreenState extends State<FocusScreen>
           const SizedBox(height: 12),
           TextButton.icon(
             onPressed: () => _showTodoSelector(context, focusProvider),
-            icon: const Icon(Icons.add, size: 20),
+            icon: const DoodleIcon(type: DoodleIconType.add, size: 20),
             label: const Text('할일 추가'),
           ),
         ],
@@ -421,7 +422,7 @@ class _FocusScreenState extends State<FocusScreen>
                       ),
                     ),
                     child: todo.isCompleted
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        ? const DoodleIcon(type: DoodleIconType.check, size: 14, color: Colors.white)
                         : null,
                   ),
                 ),
@@ -446,7 +447,7 @@ class _FocusScreenState extends State<FocusScreen>
                 // 집중 시작 버튼
                 if (!todo.isCompleted && focusProvider.isIdle)
                   IconButton(
-                    icon: const Icon(Icons.play_circle_fill_rounded),
+                    icon: const DoodleIcon(type: DoodleIconType.play),
                     color: const Color(0xFF2E7D32),
                     onPressed: () =>
                         focusProvider.startPomodoro(todoId: todo.id),
@@ -454,7 +455,7 @@ class _FocusScreenState extends State<FocusScreen>
                   ),
                 // 제거 버튼
                 IconButton(
-                  icon: Icon(Icons.close, color: Colors.grey[400], size: 20),
+                  icon: DoodleIcon(type: DoodleIconType.close, color: Colors.grey[400]!, size: 20),
                   onPressed: () => focusProvider.toggleFocusTodo(todo.id),
                   tooltip: '목록에서 제거',
                 ),

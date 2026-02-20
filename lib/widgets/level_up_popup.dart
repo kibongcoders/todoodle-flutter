@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../providers/level_provider.dart';
 
 /// 레벨업 축하 팝업을 표시합니다 (큐 지원)
@@ -246,8 +247,8 @@ class _LevelUpPopupWidgetState extends State<_LevelUpPopupWidget>
                       // 닫기 버튼
                       IconButton(
                         onPressed: _dismiss,
-                        icon: Icon(
-                          Icons.close,
+                        icon: DoodleIcon(
+                          type: DoodleIconType.close,
                           color: DoodleColors.primaryDark.withValues(alpha: 0.5),
                           size: 20,
                         ),

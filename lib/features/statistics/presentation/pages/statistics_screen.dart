@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/constants/doodle_colors.dart';
 import '../../../../core/constants/doodle_typography.dart';
 import '../../../../shared/widgets/doodle_background.dart';
+import '../../../../shared/widgets/doodle_icon.dart';
 import '../../../../widgets/doodle_chip.dart';
 import '../../domain/models/statistics_data.dart';
 import '../providers/statistics_provider.dart';
@@ -34,7 +35,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: const DoodleIcon(type: DoodleIconType.arrowBack),
           color: DoodleColors.pencilDark,
           onPressed: () => Navigator.pop(context),
         ),

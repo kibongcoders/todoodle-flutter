@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import '../models/todo.dart';
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 import 'todo_form_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         heroTag: 'calendar_fab',
         onPressed: () => _openFormScreen(context, null),
         backgroundColor: const Color(0xFF2E7D32),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const DoodleIcon(type: DoodleIconType.add, color: Colors.white),
       ),
     );
   }
@@ -160,12 +161,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
           fontWeight: FontWeight.bold,
           color: Color(0xFF2E7D32),
         ),
-        leftChevronIcon: const Icon(
-          Icons.chevron_left,
+        leftChevronIcon: const DoodleIcon(
+          type: DoodleIconType.chevronLeft,
           color: Color(0xFF2E7D32),
         ),
-        rightChevronIcon: const Icon(
-          Icons.chevron_right,
+        rightChevronIcon: const DoodleIcon(
+          type: DoodleIconType.chevronRight,
           color: Color(0xFF2E7D32),
         ),
       ),
@@ -227,7 +228,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           const Spacer(),
           TextButton.icon(
             onPressed: () => _openFormScreen(context, null),
-            icon: const Icon(Icons.add, size: 18),
+            icon: const DoodleIcon(type: DoodleIconType.add, size: 18),
             label: const Text('할일 추가'),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF2E7D32),
@@ -325,7 +326,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                 ),
                 child: todo.isCompleted
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
+                    ? const DoodleIcon(type: DoodleIconType.check, color: Colors.white, size: 18)
                     : null,
               ),
             ),

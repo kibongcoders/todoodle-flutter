@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../core/constants/doodle_colors.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../core/constants/sketchbook_theme.dart';
 import '../models/doodle.dart';
 import '../providers/sketchbook_provider.dart';
@@ -58,7 +59,7 @@ class _SketchbookScreenState extends State<SketchbookScreen> {
         actions: [
           IconButton(
             onPressed: _shareCurrentPage,
-            icon: const Icon(Icons.share_outlined),
+            icon: const DoodleIcon(type: DoodleIconType.share),
             tooltip: '페이지 공유',
           ),
           IconButton(

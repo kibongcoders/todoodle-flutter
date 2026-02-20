@@ -5,6 +5,7 @@ import '../core/constants/doodle_colors.dart';
 import '../models/doodle.dart';
 import '../providers/level_provider.dart';
 import '../providers/sketchbook_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../widgets/doodle_painter.dart';
 
 /// 낙서 도감 화면
@@ -268,8 +269,8 @@ class DoodleCollectionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Icon(
-                        Icons.lock_outline,
+                      DoodleIcon(
+                        type: DoodleIconType.lock,
                         size: 24,
                         color: DoodleColors.pencilLight.withValues(alpha: 0.6),
                       ),

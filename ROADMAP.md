@@ -124,20 +124,20 @@ int getLevelFromXP(int totalXP) {
 > **목표: Material Icons 탈피, 완전한 손그림 UI**
 > **예상 사용자: 10만명** (Doodle 정체성 완성)
 
-### 5.1 손그림 아이콘 세트 ⬜ [높음]
+### 5.1 손그림 아이콘 세트 ✅ [완료]
 
-**현재 문제**: Material Icons 사용 중 → 차별화 부족
+**해결**: CustomPainter 기반 DoodleIcon 시스템 (flutter_svg 불필요)
 
 | 기능 | 설명 | 상태 |
 |------|------|------|
-| SVG 아이콘 제작 | 30+ 커스텀 아이콘 (Figma → SVG) | ⬜ |
-| 체크박스 아이콘 | 손그림 체크/동그라미 변형 5종 | ⬜ |
-| 우선순위 아이콘 | 별/느낌표/깃발 손그림 5종 | ⬜ |
-| 카테고리 아이콘 | 일/운동/공부 등 10종 손그림 | ⬜ |
-| 네비게이션 아이콘 | 홈/캘린더/스케치북/습관/설정 5종 | ⬜ |
-| 기타 아이콘 | 알람/반복/태그/첨부 등 10종 | ⬜ |
+| DoodleIcon 위젯 | DoodleIconType enum 26종 + DoodleIconPainter | ✅ |
+| 네비게이션 아이콘 | 홈/캘린더/타이머/불꽃/설정 5종 | ✅ |
+| 공통 액션 아이콘 | 추가/닫기/체크/뒤로/꺾쇠/검색/마이크/필터/삭제/편집 | ✅ |
+| 미디어 컨트롤 아이콘 | 재생/일시정지/정지/건너뛰기 4종 | ✅ |
+| 기타 아이콘 | 공유/드래그/화살표/자물쇠/복원 등 7종 | ✅ |
+| 20+ 파일 교체 | Material Icons → DoodleIcon 일괄 교체 | ✅ |
 
-**패키지**: `flutter_svg` 사용
+**구현 방식**: DoodleCheckbox 패턴 확장 — Random(42) 고정 시드, 15% wobble, quadraticBezierTo
 
 ### 5.2 마이크로 애니메이션 ⬜ [높음]
 
@@ -327,7 +327,7 @@ static const inkBlackDark = Color(0xFFEEEEF0); // 어두운 모드 텍스트
 
 ### 추가 예정
 - **audioplayers** (사운드 효과 - Phase 4.4)
-- **flutter_svg** (손그림 아이콘 - Phase 5.1)
+- ~~flutter_svg~~ (불필요 — CustomPainter DoodleIcon으로 대체)
 - **share_plus** (스케치북 공유 - Phase 4.3)
 - **path_provider** (로컬 저장소)
 
@@ -361,13 +361,13 @@ static const inkBlackDark = Color(0xFFEEEEF0); // 어두운 모드 텍스트
 
 ---
 
-## 다음 작업: Phase 5.1 손그림 아이콘 세트
+## 다음 작업: Phase 5.2 마이크로 애니메이션
 
 **다음으로 구현할 기능**:
-1. SVG 아이콘 제작 (30+ 커스텀 아이콘)
-2. 체크박스/우선순위/카테고리 손그림 아이콘
-3. 네비게이션 아이콘 교체
-4. flutter_svg 패키지 도입
+1. 체크 스크래치 애니메이션
+2. 지우개 효과 (할일 삭제)
+3. 연필 쓰기 효과 (할일 입력)
+4. 포스트잇 붙이기 효과 (할일 추가)
 
 ---
 

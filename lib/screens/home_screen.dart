@@ -13,6 +13,7 @@ import '../providers/sketchbook_provider.dart';
 import '../providers/todo_provider.dart' show TodoProvider, DateFilter;
 import '../services/natural_language_parser.dart';
 import '../services/speech_service.dart';
+import '../shared/widgets/doodle_icon.dart';
 import '../shared/widgets/doodle_background.dart';
 import '../widgets/doodle_chip.dart';
 import '../widgets/todo_list_item.dart';
@@ -237,10 +238,10 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: InputDecoration(
           hintText: '할일 검색...',
           hintStyle: DoodleTypography.hint,
-          prefixIcon: const Icon(Icons.search, color: DoodleColors.pencilLight, size: 20),
+          prefixIcon: const DoodleIcon(type: DoodleIconType.search, color: DoodleColors.pencilLight, size: 20),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: const Icon(Icons.clear, color: DoodleColors.pencilLight, size: 20),
+                  icon: const DoodleIcon(type: DoodleIconType.close, color: DoodleColors.pencilLight, size: 20),
                   onPressed: () {
                     _searchController.clear();
                     context.read<TodoProvider>().clearSearch();
@@ -316,8 +317,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           // 음성 입력 버튼
           IconButton(
-            icon: Icon(
-              _isListening ? Icons.mic : Icons.mic_none_outlined,
+            icon: DoodleIcon(
+              type: DoodleIconType.mic,
               color: _isListening ? DoodleColors.crayonRed : DoodleColors.pencilLight,
               size: 22,
             ),
@@ -335,7 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: DoodleColors.primary,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.arrow_upward, color: Colors.white, size: 18),
+                child: const DoodleIcon(type: DoodleIconType.arrowUp, color: Colors.white, size: 18),
               ),
             )
           else
@@ -414,8 +415,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        child: Icon(
-          _isSearching ? Icons.close : Icons.search,
+        child: DoodleIcon(
+          type: _isSearching ? DoodleIconType.close : DoodleIconType.search,
           color: _isSearching ? Colors.white : DoodleColors.primary,
           size: 20,
         ),
@@ -452,8 +453,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              child: const Icon(
-                Icons.filter_list,
+              child: const DoodleIcon(
+                type: DoodleIconType.filter,
                 color: DoodleColors.primary,
                 size: 20,
               ),

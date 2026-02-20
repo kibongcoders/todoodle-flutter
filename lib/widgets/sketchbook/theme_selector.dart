@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/doodle_colors.dart';
+import '../../shared/widgets/doodle_icon.dart';
 import '../../core/constants/sketchbook_theme.dart';
 import '../../providers/sketchbook_provider.dart';
 
@@ -56,7 +57,7 @@ class ThemeSelector extends StatelessWidget {
                           : null,
                     ),
                     child: isSelected
-                        ? const Icon(Icons.check, size: 14, color: DoodleColors.primary)
+                        ? const DoodleIcon(type: DoodleIconType.check, size: 14, color: DoodleColors.primary)
                         : null,
                   ),
                 );

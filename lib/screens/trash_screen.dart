@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/category_provider.dart';
 import '../providers/todo_provider.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 class TrashScreen extends StatelessWidget {
   const TrashScreen({super.key});
@@ -81,7 +82,7 @@ class TrashScreen extends StatelessWidget {
                   alignment: Alignment.centerRight,
                   padding: const EdgeInsets.only(right: 20),
                   color: Colors.red[400],
-                  child: const Icon(Icons.delete_forever, color: Colors.white),
+                  child: const DoodleIcon(type: DoodleIconType.delete, color: Colors.white),
                 ),
                 confirmDismiss: (direction) async {
                   return await showDialog<bool>(
@@ -126,7 +127,7 @@ class TrashScreen extends StatelessWidget {
                     ),
                   ),
                   trailing: IconButton(
-                    icon: const Icon(Icons.restore, color: Color(0xFF2E7D32)),
+                    icon: const DoodleIcon(type: DoodleIconType.restore, color: Color(0xFF2E7D32)),
                     onPressed: () {
                       todoProvider.restoreTodo(todo.id);
                       ScaffoldMessenger.of(context).showSnackBar(

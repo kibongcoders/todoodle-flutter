@@ -5,6 +5,7 @@ import '../features/statistics/presentation/pages/statistics_screen.dart';
 import '../providers/settings_provider.dart';
 import '../providers/todo_provider.dart';
 import '../services/notification_service.dart';
+import '../shared/widgets/doodle_icon.dart';
 import 'achievements_screen.dart';
 import 'archive_screen.dart';
 import 'trash_screen.dart';
@@ -415,7 +416,7 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right, color: Colors.grey[400]),
+            DoodleIcon(type: DoodleIconType.chevronRight, color: Colors.grey[400]!),
           ],
         ),
       ),

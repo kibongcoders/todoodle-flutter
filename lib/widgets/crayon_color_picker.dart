@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/doodle_colors.dart';
+import '../shared/widgets/doodle_icon.dart';
 
 /// 크레파스 색상 선택 바텀시트
 ///
@@ -71,7 +72,7 @@ class CrayonColorPicker extends StatelessWidget {
                 _buildColorButton(
                   color: DoodleColors.pencilLight,
                   isSelected: currentColorIndex == null,
-                  icon: Icons.edit_outlined,
+                  doodleIconType: DoodleIconType.edit,
                   onTap: () => onColorSelected(null),
                 ),
                 const SizedBox(width: 8),
@@ -98,7 +99,7 @@ class CrayonColorPicker extends StatelessWidget {
   Widget _buildColorButton({
     required Color color,
     required bool isSelected,
-    IconData? icon,
+    DoodleIconType? doodleIconType,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -122,10 +123,10 @@ class CrayonColorPicker extends StatelessWidget {
                 ]
               : null,
         ),
-        child: icon != null
-            ? Icon(icon, size: 16, color: Colors.white)
+        child: doodleIconType != null
+            ? DoodleIcon(type: doodleIconType, size: 16, color: Colors.white)
             : isSelected
-                ? const Icon(Icons.check, size: 16, color: Colors.white)
+                ? const DoodleIcon(type: DoodleIconType.check, size: 16, color: Colors.white)
                 : null,
       ),
     );
