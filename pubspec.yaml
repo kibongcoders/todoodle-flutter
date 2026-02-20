@@ -46,6 +46,7 @@ dependencies:
   fl_chart: ^0.69.2
   share_plus: ^10.0.0
   path_provider: ^2.1.0
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +90,7 @@ flutter:
     - assets/textures/
     - assets/models/
     - assets/planet_frames/
+    - assets/sounds/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

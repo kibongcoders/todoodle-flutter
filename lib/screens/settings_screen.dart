@@ -179,6 +179,24 @@ class SettingsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // 사운드 설정 섹션
+              _buildSectionCard(
+                emoji: '🔊',
+                title: '사운드',
+                child: _buildSettingRow(
+                  icon: settings.soundEnabled ? '🔊' : '🔇',
+                  title: '효과음',
+                  subtitle: '할일 완료, 레벨업 등의 효과음',
+                  trailing: Switch(
+                    value: settings.soundEnabled,
+                    onChanged: (value) => settings.setSoundEnabled(value),
+                    activeThumbColor: const Color(0xFF2E7D32),
+                    activeTrackColor: const Color(0xFFA8E6CF),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // 데이터 관리 섹션
               _buildSectionCard(
                 emoji: '📁',

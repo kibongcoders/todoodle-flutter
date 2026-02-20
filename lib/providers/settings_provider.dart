@@ -12,6 +12,7 @@ class SettingsProvider extends ChangeNotifier {
   static const _dailySummaryEnabledKey = 'dailySummaryEnabled';
   static const _dailySummaryHourKey = 'dailySummaryHour';
   static const _dailySummaryMinuteKey = 'dailySummaryMinute';
+  static const _soundEnabledKey = 'soundEnabled';
 
   late Box _box;
   bool _notificationEnabled = true;
@@ -20,6 +21,7 @@ class SettingsProvider extends ChangeNotifier {
   TimeOfDay _dndEndTime = const TimeOfDay(hour: 8, minute: 0);    // 아침 8시
   bool _dailySummaryEnabled = false;
   TimeOfDay _dailySummaryTime = const TimeOfDay(hour: 21, minute: 0); // 밤 9시
+  bool _soundEnabled = true;
 
   bool get notificationEnabled => _notificationEnabled;
   bool get dndEnabled => _dndEnabled;
@@ -27,6 +29,7 @@ class SettingsProvider extends ChangeNotifier {
   TimeOfDay get dndEndTime => _dndEndTime;
   bool get dailySummaryEnabled => _dailySummaryEnabled;
   TimeOfDay get dailySummaryTime => _dailySummaryTime;
+  bool get soundEnabled => _soundEnabled;
 
   Future<void> init() async {
     _box = await Hive.openBox(_boxName);
@@ -45,6 +48,7 @@ class SettingsProvider extends ChangeNotifier {
       hour: _box.get(_dailySummaryHourKey, defaultValue: 21),
       minute: _box.get(_dailySummaryMinuteKey, defaultValue: 0),
     );
+    _soundEnabled = _box.get(_soundEnabledKey, defaultValue: true);
   }
 
   Future<void> setNotificationEnabled(bool value) async {
@@ -83,6 +87,12 @@ class SettingsProvider extends ChangeNotifier {
     _dailySummaryTime = time;
     await _box.put(_dailySummaryHourKey, time.hour);
     await _box.put(_dailySummaryMinuteKey, time.minute);
+    notifyListeners();
+  }
+
+  Future<void> setSoundEnabled(bool value) async {
+    _soundEnabled = value;
+    await _box.put(_soundEnabledKey, value);
     notifyListeners();
   }
 

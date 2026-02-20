@@ -6,6 +6,7 @@ import '../core/constants/doodle_typography.dart';
 import '../providers/achievement_provider.dart';
 import '../providers/level_provider.dart';
 import '../widgets/achievement_popup.dart';
+import '../services/sound_service.dart';
 import '../widgets/level_up_popup.dart';
 import 'calendar_screen.dart';
 import 'focus_screen.dart';
@@ -39,6 +40,7 @@ class _MainScreenState extends State<MainScreen> {
       final achievementProvider = context.read<AchievementProvider>();
       achievementProvider.onAchievementUnlocked = (achievement) {
         if (mounted) {
+          SoundService().play(SoundEffect.achievement);
           AchievementPopup.show(context, achievement);
         }
       };
@@ -46,6 +48,7 @@ class _MainScreenState extends State<MainScreen> {
       final levelProvider = context.read<LevelProvider>();
       levelProvider.onLevelUp = (newLevel) {
         if (mounted) {
+          SoundService().play(SoundEffect.levelUp);
           LevelUpPopup.show(context, newLevel);
         }
       };

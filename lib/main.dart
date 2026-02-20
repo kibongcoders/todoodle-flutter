@@ -22,6 +22,7 @@ import 'providers/todo_provider.dart';
 import 'screens/main_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/notification_service.dart';
+import 'services/sound_service.dart';
 import 'shared/themes/doodle_theme.dart';
 
 void main() async {
@@ -63,6 +64,11 @@ void main() async {
   await notificationService.requestPermission();
   notificationService.setSettingsProvider(settingsProvider);
 
+  // 사운드 서비스 초기화
+  final soundService = SoundService();
+  await soundService.init();
+  soundService.setSettingsProvider(settingsProvider);
+
   // 스케치북 Provider 초기화
   final sketchbookProvider = SketchbookProvider();
   await sketchbookProvider.init();
@@ -88,6 +94,7 @@ void main() async {
 
   // 낙서 완성 시 업적 체크 연결
   sketchbookProvider.onDoodleCompleted = (totalDoodlesCompleted) {
+    SoundService().play(SoundEffect.doodleComplete);
     achievementProvider.onDoodleCompleted(totalDoodlesCompleted: totalDoodlesCompleted);
   };
 

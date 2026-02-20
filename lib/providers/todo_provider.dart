@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/todo.dart';
 import '../services/notification_service.dart';
+import '../services/sound_service.dart';
 import 'achievement_provider.dart';
 import 'level_provider.dart';
 import 'settings_provider.dart';
@@ -488,8 +489,9 @@ class TodoProvider extends ChangeNotifier {
         todo.completionHistory = history;
       }
 
-      // 완료 상태로 변경될 때 낙서 획 추가, XP 획득, 업적 체크
+      // 완료 상태로 변경될 때 사운드 재생, 낙서 획 추가, XP 획득, 업적 체크
       if (!wasCompleted && todo.isCompleted) {
+        SoundService().play(SoundEffect.check);
         _sketchbookProvider?.drawStroke();
         _levelProvider?.addXP(LevelProvider.xpForPriority(todo.priority));
         _checkAchievements();
