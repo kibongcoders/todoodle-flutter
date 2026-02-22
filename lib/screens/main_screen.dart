@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../core/constants/doodle_colors.dart';
 import '../core/constants/doodle_typography.dart';
 import '../providers/achievement_provider.dart';
-import '../shared/widgets/doodle_icon.dart';
 import '../providers/level_provider.dart';
 import '../widgets/achievement_popup.dart';
 import '../services/sound_service.dart';
@@ -88,27 +87,27 @@ class _MainScreenState extends State<MainScreen> {
               children: [
                 _buildNavItem(
                   index: 0,
-                  iconType: DoodleIconType.home,
+                  icon: Icons.home_rounded,
                   label: '홈',
                 ),
                 _buildNavItem(
                   index: 1,
-                  iconType: DoodleIconType.calendar,
+                  icon: Icons.calendar_month_rounded,
                   label: '캘린더',
                 ),
                 _buildNavItem(
                   index: 2,
-                  iconType: DoodleIconType.timer,
+                  icon: Icons.timer_rounded,
                   label: '집중',
                 ),
                 _buildNavItem(
                   index: 3,
-                  iconType: DoodleIconType.fire,
+                  icon: Icons.local_fire_department_rounded,
                   label: '습관',
                 ),
                 _buildNavItem(
                   index: 4,
-                  iconType: DoodleIconType.settings,
+                  icon: Icons.settings_rounded,
                   label: '설정',
                 ),
               ],
@@ -121,7 +120,7 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem({
     required int index,
-    required DoodleIconType iconType,
+    required IconData icon,
     required String label,
   }) {
     final isSelected = _currentIndex == index;
@@ -148,8 +147,8 @@ class _MainScreenState extends State<MainScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            DoodleIcon(
-              type: iconType,
+            Icon(
+              icon,
               color: iconColor,
               size: 24,
             ),

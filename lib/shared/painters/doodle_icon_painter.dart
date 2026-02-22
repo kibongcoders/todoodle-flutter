@@ -100,9 +100,9 @@ class DoodleIconPainter extends CustomPainter {
 
   static final _random = math.Random(42);
 
-  /// 좌표에 wobble 적용
+  /// 좌표에 wobble 적용 (6% — 가독성 우선)
   double _w(double value, double range) {
-    return value + (_random.nextDouble() - 0.5) * range * 0.15;
+    return value + (_random.nextDouble() - 0.5) * range * 0.06;
   }
 
   /// wobble이 적용된 Offset 생성
@@ -123,8 +123,8 @@ class DoodleIconPainter extends CustomPainter {
 
     // 중간 컨트롤 포인트로 살짝 곡선
     final mid = Offset(
-      (start.dx + end.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.1,
-      (start.dy + end.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.1,
+      (start.dx + end.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.04,
+      (start.dy + end.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.04,
     );
     path.quadraticBezierTo(mid.dx, mid.dy, end.dx, end.dy);
     canvas.drawPath(path, paint);
@@ -142,7 +142,7 @@ class DoodleIconPainter extends CustomPainter {
 
     for (var i = 0; i <= segments; i++) {
       final angle = (i / segments) * 2 * math.pi - math.pi / 2;
-      final wobble = (_random.nextDouble() - 0.5) * radius * 0.15;
+      final wobble = (_random.nextDouble() - 0.5) * radius * 0.06;
       final r = radius + wobble;
 
       final x = center.dx + r * math.cos(angle);
@@ -183,26 +183,26 @@ class DoodleIconPainter extends CustomPainter {
 
     path.moveTo(tl.dx, tl.dy);
     path.quadraticBezierTo(
-      (tl.dx + tr.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
-      (tl.dy + tr.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
+      (tl.dx + tr.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
+      (tl.dy + tr.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
       tr.dx,
       tr.dy,
     );
     path.quadraticBezierTo(
-      (tr.dx + br.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
-      (tr.dy + br.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
+      (tr.dx + br.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
+      (tr.dy + br.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
       br.dx,
       br.dy,
     );
     path.quadraticBezierTo(
-      (br.dx + bl.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
-      (br.dy + bl.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
+      (br.dx + bl.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
+      (br.dy + bl.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
       bl.dx,
       bl.dy,
     );
     path.quadraticBezierTo(
-      (bl.dx + tl.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
-      (bl.dy + tl.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.05,
+      (bl.dx + tl.dx) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
+      (bl.dy + tl.dy) / 2 + (_random.nextDouble() - 0.5) * range * 0.02,
       tl.dx,
       tl.dy,
     );
